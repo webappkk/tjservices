@@ -6,10 +6,11 @@
     <title>แอปอู่ซ่อมรถยนต์ - ที.เจ ยนต์</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* CSS from "แอปอู่ซ่อมรถยนต์ - ดีไซน์ใหม่" */
         body {
-            font-family: "Sarabun", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Changed default font */
+            font-family: "Sarabun", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding-bottom: 70px; /* Space for bottom-nav */
             background-color: #f4f8f9;
@@ -41,54 +42,92 @@
         }
         /* Bottom Navigation */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #ffffff;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            padding: 8px 0;
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: #ffffff; display: flex;
+            justify-content: space-around; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000; padding: 8px 0;
         }
         .nav-item {
-            background: none;
-            border: none;
-            color: #757575;
-            padding: 8px 5px;
+            background: none; border: none; color: #757575; padding: 8px 5px;
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 0.75em; cursor: pointer; flex-grow: 1;
+            transition: color 0.3s ease; font-family: "Sarabun", sans-serif;
+        }
+        .nav-item i { font-size: 1.8em; margin-bottom: 3px; }
+        .nav-item.active { color: #3498db; }
+        .nav-item:hover:not(.active) { color: #5dade2; }
+
+        /* Wrapper for Horizontal Chart Cards */
+        .horizontal-chart-cards-wrapper {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.75em; /* Consider increasing slightly for Sarabun */
-            cursor: pointer;
-            flex-grow: 1;
-            transition: color 0.3s ease;
-            font-family: "Sarabun", sans-serif; /* Ensure nav items also use Sarabun */
+            flex-direction: row; /* Default, can be omitted */
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .nav-item i {
-            font-size: 1.8em;
-            margin-bottom: 3px;
+        .horizontal-chart-cards-wrapper .modern-stat-card.chart-card {
+            flex: 1 1 calc(50% - 0.5rem); /* Try to fit two cards per row, accounting for gap */
+            box-sizing: border-box;
         }
-        .nav-item.active {
-            color: #3498db;
-        }
-        .nav-item:hover:not(.active) {
-            color: #5dade2;
+        @media (max-width: 400px) { /* Adjust breakpoint as needed for single column */
+            .horizontal-chart-cards-wrapper .modern-stat-card.chart-card {
+                flex: 1 1 100%; /* Full width on smaller screens */
+            }
         }
 
+
         /* Dashboard Cards from new design */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adjusted minmax for smaller screens too */
+            gap: 1rem; /* Consistent gap */
+        }
         .modern-stat-card {
-            display: flex; align-items: flex-start; background-color: #fff;
-            border-radius: 10px; padding: 1rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex; flex-direction: column; align-items: stretch;
+            background-color: #fff; border-radius: 10px;
+            padding: 1rem; /* Consistent padding */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             transition: transform 0.2s ease-in-out;
+            height: 100%; /* For cards in a grid to have same height */
+            box-sizing: border-box;
         }
         .modern-stat-card:hover { transform: translateY(-3px); }
+
         .card-icon-wrapper {
             width: 48px; height: 48px; border-radius: 10px; display: flex;
             align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;
+            /* If card-content is not display:flex;row then margin-right might not be needed or margin-bottom instead */
         }
+         /* Ensure icon is part of header or structure correctly */
+        .modern-stat-card > .card-icon-wrapper { /* If icon is direct child before content */
+             margin-bottom: 0.8rem;
+             margin-right: 0; /* Reset if it's above content */
+        }
+        .modern-stat-card .card-header-flex { /* Optional: if you want icon and h3 on same line */
+            display: flex;
+            align-items: flex-start; /* Align icon and text nicely */
+            margin-bottom: 0.5rem;
+        }
+        .modern-stat-card .card-header-flex .card-icon-wrapper {
+            margin-right: 0.8rem; /* Space between icon and title */
+            margin-bottom: 0;
+        }
+
+
+        .card-content {
+            flex-grow: 1; display: flex; flex-direction: column;
+        }
+        .modern-stat-card .card-content h3 {
+            margin: 0 0 0.4em 0; font-size: 1em;
+            font-weight: 600; color: #4a5568;
+        }
+        .modern-stat-card .stat-value {
+            font-size: 1.6em; font-weight: 700; color: #2c3e50;
+            margin-bottom: 0.4em; line-height: 1.2;
+        }
+        .modern-stat-card .stat-details { font-size: 0.85em; color: #6c757d; }
+        .modern-stat-card .stat-details span { display: block; margin-top: 0.2rem; }
+
         .card-icon-wrapper.bg-blue-light { background-color: #eaf5fc; }
         .card-icon-wrapper.bg-green-light { background-color: #e8f8f0; }
         .card-icon-wrapper.bg-orange-light { background-color: #fef5e7; }
@@ -98,31 +137,60 @@
         .card-icon-wrapper i.icon-green { color: #2ecc71; }
         .card-icon-wrapper i.icon-orange { color: #f39c12; }
         .card-icon-wrapper i.icon-red { color: #e74c3c; }
-        .modern-stat-card .card-content h3 { margin: 0 0 0.2em 0; font-size: 0.95em; font-weight: 600; color: #4a5568; }
-        .modern-stat-card .stat-value { font-size: 1.8em; font-weight: 700; color: #2c3e50; margin-bottom: 0.25em; line-height: 1.2; }
-        .modern-stat-card .stat-details { font-size: 0.8em; color: #6c757d; }
-        .modern-stat-card .stat-details span { display: block; margin-top: 0.1rem;}
-        .dashboard-header-info { font-size: 0.85em; color: #666; margin-bottom: 1.2rem; }
-        .chart-card .chart-container { min-height: 180px; display: flex; align-items: flex-end; justify-content: space-around; padding-top: 0.5rem; }
+
+        /* Unified Chart Container Styling */
+        .chart-card .chart-container,
+        .modern-stat-card .chart-container {
+            min-height: 220px; /* Adjusted height for charts */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            flex-grow: 1;
+            position: relative; /* For Chart.js responsiveness */
+        }
+        .modern-stat-card .chart-container canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* CSS for the old bar chart (commented out as it's replaced by Chart.js) */
+        /*
         .bar-chart { display: flex; justify-content: space-around; align-items: flex-end; width: 100%; height: 140px; }
         .bar-item { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; margin: 0 4px;}
         .bar-item .bar { width: 90%; border-radius: 5px 5px 0 0; transition: height 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .bar-item .bar-label { font-size: 0.75em; color: #555; margin-top: 5px; white-space: normal; line-height:1.15; }
-        #low-stock-summary-list ul { list-style-type: none; padding-left: 0; font-size: 0.9em; max-height: 160px; overflow-y: auto;}
-        #low-stock-summary-list li { padding: 0.4em 0; border-bottom: 1px dashed #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        #low-stock-summary-list li:last-child { border-bottom: none; }
-        #low-stock-summary-list li .item-name { font-weight: 500; color: #333; flex-grow: 1; padding-right: 8px;}
-        #low-stock-summary-list li .item-qty { color: #e74c3c; font-weight: bold; white-space: nowrap; }
-        #low-stock-summary-list p.empty-message { font-size: 0.85em; color: #777; margin-top: 0.6rem; text-align: center; }
+        .bar-item .bar-value {
+            font-size: 0.9em; font-weight: bold; color: #333; margin-bottom: 4px;
+        }
+        */
 
-        /* Form Elements (from new design) */
+        #low-stock-summary-list ul {
+            list-style-type: none; padding-left: 0; font-size: 0.9em;
+            max-height: 180px; overflow-y: auto;
+        }
+        #low-stock-summary-list li {
+            padding: 0.5em 0; border-bottom: 1px dashed #f0f0f0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #low-stock-summary-list li:last-child { border-bottom: none; }
+        #low-stock-summary-list li .item-name {
+            font-weight: 500; color: #333; flex-grow: 1; padding-right: 8px;
+        }
+        #low-stock-summary-list li .item-qty {
+            color: #e74c3c; font-weight: bold; white-space: nowrap;
+        }
+        #low-stock-summary-list p.empty-message {
+            font-size: 0.85em; color: #777; margin-top: 0.6rem; text-align: center;
+        }
+
+        /* Form Elements */
         label { display: block; margin-top: 1.1rem; margin-bottom: 0.4rem; font-weight: 500; color: #4a5568; font-size: 0.9em; }
         .form-input, select.form-input, textarea.form-input {
             width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d9e2;
             border-radius: 8px; font-size: 0.95em; background-color: #fdfdff;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            font-family: "Sarabun", sans-serif; /* Ensure form inputs use Sarabun */
-            box-sizing: border-box; /* Added for better sizing consistency */
+            font-family: "Sarabun", sans-serif; box-sizing: border-box;
         }
         .form-input:focus, select.form-input:focus, textarea.form-input:focus {
             border-color: #3498db; outline: none; box-shadow: 0 0 0 3.5px rgba(52, 152, 219, 0.2);
@@ -130,21 +198,19 @@
         textarea.form-input { resize: vertical; min-height: 80px; }
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-
         .form-line-item { display: flex; gap: 0.7rem; align-items: center; margin-bottom: 0.9rem; }
-        .form-line-item .item-name-input { flex-grow: 1; } /* Ensure these classes are on your dynamic inputs */
+        .form-line-item .item-name-input { flex-grow: 1; }
         .form-line-item .item-qty-input { width: 80px; }
         .form-line-item .item-price-input { width: 110px; }
         .total-display { margin-top: 1.3rem; font-weight: 600; font-size: 1.15em; }
         .total-display span { color: #27ae60; }
 
-        /* Buttons (from new design) */
+        /* Buttons */
         .btn {
             display: inline-block; width: 100%; padding: 0.85rem 1.2rem; border: none;
             border-radius: 8px; font-size: 1em; font-weight: 500; cursor: pointer;
             text-align: center; transition: background-color 0.25s ease, transform 0.1s ease;
-            font-family: "Sarabun", sans-serif; /* Ensure buttons use Sarabun */
-            box-sizing: border-box; /* Added for better sizing consistency */
+            font-family: "Sarabun", sans-serif; box-sizing: border-box;
         }
         .btn-primary { background-color: #3498db; color: white; box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3); }
         .btn-primary:hover { background-color: #2980b9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3); }
@@ -163,7 +229,7 @@
         .btn-small-action { width: auto; padding: 0.6rem 1.2rem; font-size: 0.9em; margin-top:0.5rem; }
         .btn-small-action i { margin-right: 0.4rem; }
 
-        /* Data Tables (from new design) */
+        /* Data Tables */
         .table-container { overflow-x: auto; }
         .data-table { width: 100%; border-collapse: collapse; margin-top: 1.3rem; font-size: 0.9em; }
         .data-table thead tr { background-color: #f8f9fc; }
@@ -174,20 +240,18 @@
         .table-actions .btn-icon { margin: 0 4px; }
         .detail-list-table { padding-left: 1em; margin: 0; list-style-type: disc; font-size: 0.9em; line-height: 1.4; max-height: 90px; overflow-y: auto; }
 
-        /* Status Select/Badges (from new design, adapted from original for select) */
-        select.status-select-visual, .status-badge-visual { /* New common class for visual */
+        /* Status Select/Badges */
+        select.status-select-visual, .status-badge-visual {
             font-weight: bold; color: white; border-radius: 16px; padding: 6px 14px;
             border: none; min-width: 110px; font-size:0.8em; text-align: center;
-            display: inline-block;
-             font-family: "Sarabun", sans-serif;
+            display: inline-block; font-family: "Sarabun", sans-serif;
         }
-        select.status-select-visual { -webkit-appearance: none; -moz-appearance: none; appearance: none; } /* Remove default arrow */
+        select.status-select-visual { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
         select.status-รับเข้าซ่อม, .status-badge-visual.status-รับเข้าซ่อม { background-color: #e74c3c; }
         select.status-ระหว่างซ่อม, .status-badge-visual.status-ระหว่างซ่อม { background-color: #f39c12; }
         select.status-ซ่อมเสร็จแล้ว, .status-badge-visual.status-ซ่อมเสร็จแล้ว { background-color: #2ecc71; }
 
-
-        /* Promo Carousel (from original V2.2, may need style adjustments) */
+        /* Promo Carousel */
         .promo-carousel-container { margin-bottom: 1rem; }
         .promo-carousel { position: relative; width: 100%; height: 150px; overflow: hidden; border-radius: 8px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
         .promo-carousel img { width: 100%; height: 100%; object-fit: cover; user-select: none; }
@@ -219,55 +283,54 @@
             display: flex; align-items: center; justify-content: center; line-height: 1; padding-bottom: 1px;
         }
         .promo-thumb .btn-remove:hover { background: rgba(192, 57, 43, 1); }
-        #promo-admin-icon { /* Original V2.2 style */
-            position: fixed; bottom: 80px; right: 24px; width: 52px; height: 52px; /* Adjusted bottom to not overlap nav */
+        #promo-admin-icon {
+            position: fixed; bottom: 80px; right: 24px; width: 52px; height: 52px;
             background-color: #e74c3c; border-radius: 50%; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             color: white; font-size: 28px; display: flex; align-items: center; justify-content: center;
             cursor: pointer; user-select: none; z-index: 999; transition: background-color 0.3s ease;
         }
 
-        /* Cash Receipt Section from new design */
+        /* Cash Receipt Section */
         #cash-receipt { margin-top:1.5rem; padding:1.2rem; border:1px solid #d1d9e2; border-radius:10px; background-color:#f8f9fc; }
         #cash-receipt h3 { margin-bottom: 1rem; font-size: 1.2em; color: #34495e; font-weight: 600;}
 
-        /* Utility Classes from V2.2 */
+        /* Utility Classes */
         .text-danger { color: #e74c3c !important; }
         .font-bold { font-weight: bold !important; }
         .mt-1 { margin-top: 1rem !important; }
         .text-right { text-align: right !important; }
-        .nowrap { white-space: nowrap; } /* For table cells */
-        .qty-low-stock { color: #e74c3c; font-weight: bold; } /* For stock table quantity */
+        .nowrap { white-space: nowrap; }
+        .qty-low-stock { color: #e74c3c; font-weight: bold; }
 
-
-        /* Print Area - hidden by default */
-       #print-area { display: none; }
-    @media print {
-        body { padding-bottom: 0; background-color: #fff;}
-        .app-header, .bottom-nav, #promo-admin-icon, main.app-content > .app-section:not(#print-area):not(.active-for-print), footer {
-            display: none !important; visibility: hidden !important;
+        /* Print Area */
+        #print-area { display: none; }
+        @media print {
+            body { padding-bottom: 0; background-color: #fff;}
+            .app-header, .bottom-nav, #promo-admin-icon, main.app-content > .app-section:not(#print-area):not(.active-for-print), footer {
+                display: none !important; visibility: hidden !important;
+            }
+            #print-area, #print-area * { visibility: visible !important; }
+            #print-area {
+                display: block !important; position: absolute !important; left: 0 !important; top: 0 !important;
+                width: 100% !important; background: white !important; padding: 10mm !important;
+                box-shadow: none !important; border: none !important; font-size: 10pt;
+                font-family: "Sarabun", Arial, sans-serif !important; margin: 0 !important;
+                box-sizing: border-box;
+            }
+            #print-area h1, #print-area h2, #print-area h3 { color: #000; }
+            #print-area table { width: 100%; border-collapse: collapse; }
+            #print-area th, #print-area td { border: 1px solid #ccc; padding: 5px; }
+            #print-area th { background-color: #f0f0f0; }
+            @page { size: A4; margin: 15mm; }
+            #print-area {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 10mm !important;
+                overflow: visible !important;
+            }
         }
-        #print-area, #print-area * {
-            visibility: visible !important;
-        }
-        #print-area {
-            display: block !important; /* เพิ่ม/แก้ไขเพื่อความแน่นอน */
-            position: absolute !important; left: 0 !important; top: 0 !important;
-            width: 100% !important; background: white !important; padding: 10mm !important; /* A4 มักจะมีขอบ */
-            box-shadow: none !important; border: none !important; font-size: 10pt;
-            font-family: "Sarabun", Arial, sans-serif !important; /* ตรวจสอบฟอนต์สำหรับพิมพ์ */
-            margin: 0 !important; /* รีเซ็ต margin สำหรับพิมพ์ */
-            box-sizing: border-box;
-        }
-        /* Additional print-specific styles */
-        #print-area h1, #print-area h2, #print-area h3 { color: #000; }
-        #print-area table { width: 100%; border-collapse: collapse; }
-        #print-area th, #print-area td { border: 1px solid #ccc; padding: 5px; }
-        #print-area th { background-color: #f0f0f0; }
-        @page {
-            size: A4;
-            margin: 15mm; /* ขอบมาตรฐาน */
-        }
-    }
+        /* .monthly-summary and .summary-item are not used by current pie chart approach */
     </style>
 </head>
 <body>
@@ -280,22 +343,28 @@
             <h2>ภาพรวมระบบ</h2>
             <div class="dashboard-header-info">ข้อมูลอัปเดตเมื่อ: <span id="dashboard-last-updated">-</span></div>
 
-            <!-- กราฟยอดขายรายเดือน -->
-            <div class="modern-stat-card chart-card">
-                <h3>ยอดขายรายเดือน (บาท)</h3>
-                <div class="chart-container" id="monthly-sales-chart">
-                    <div class="bar-chart">
-                        <!-- แท่งกราฟจะถูกสร้างโดย JavaScript -->
+            <div class="horizontal-chart-cards-wrapper">
+                <div class="modern-stat-card chart-card">
+                    <h3>สรุปรายเดือน</h3>
+                    <div class="chart-container" id="monthly-summary-chart-container">
+                        <canvas id="monthly-summary-canvas"></canvas>
                     </div>
                 </div>
-            </div>
 
-            <div class="dashboard-grid">
+                <div class="modern-stat-card chart-card">
+                    <h3>ยอดขายรายเดือน</h3>
+                    <div class="chart-container" id="monthly-sales-chart-container">
+                        <canvas id="monthly-sales-canvas"></canvas>
+                    </div>
+                </div>
+            </div> <div class="dashboard-grid">
                 <div class="modern-stat-card">
-                    <div class="card-icon-wrapper bg-blue-light"><i class="fas fa-dollar-sign icon-blue"></i></div>
-                    <div class="card-content">
-                        <h3>ยอดขายรวม (บาท)</h3>
-                        <p id="stats-overall-revenue" class="stat-value">0.00</p>
+                    <div class="card-header-flex">
+                        <div class="card-icon-wrapper bg-blue-light"><i class="fas fa-dollar-sign icon-blue"></i></div>
+                        <div class="card-content"> <h3>ยอดขายรวม (บาท)</h3>
+                        </div>
+                    </div>
+                    <div class="card-content"> <p id="stats-overall-revenue" class="stat-value">0.00</p>
                         <div class="stat-details">
                             <span>งานซ่อม (เสร็จสิ้น): <span id="stats-revenue-workorders">0.00</span></span>
                             <span>อะไหล่: <span id="stats-revenue-parts-sales">0.00</span></span>
@@ -303,9 +372,13 @@
                     </div>
                 </div>
                 <div class="modern-stat-card">
-                    <div class="card-icon-wrapper bg-green-light"><i class="fas fa-clipboard-list icon-green"></i></div>
+                     <div class="card-header-flex">
+                        <div class="card-icon-wrapper bg-green-light"><i class="fas fa-clipboard-list icon-green"></i></div>
+                         <div class="card-content">
+                            <h3>จำนวนรายการ</h3>
+                        </div>
+                    </div>
                     <div class="card-content">
-                        <h3>จำนวนรายการ</h3>
                         <p id="stats-total-transactions" class="stat-value">0</p>
                         <div class="stat-details">
                             <span>ใบเสนอราคา: <span id="stats-total-quotes">0</span></span>
@@ -314,35 +387,29 @@
                         </div>
                     </div>
                 </div>
-                <div class="modern-stat-card">
-                     <div class="card-icon-wrapper bg-orange-light"><i class="fas fa-tools icon-orange"></i></div>
+                <div class="modern-stat-card"> <div class="card-header-flex">
+                        <div class="card-icon-wrapper bg-orange-light"><i class="fas fa-tools icon-orange"></i></div>
+                        <div class="card-content">
+                           <h3>สถานะงานซ่อม</h3>
+                        </div>
+                    </div>
                     <div class="card-content">
-                        <h3>สถานะงานซ่อม</h3>
-                        <div class="chart-container" id="workorder-status-chart">
-                            <div class="bar-chart">
-                                <div class="bar-item">
-                                    <div class="bar" id="bar-wo-pending" style="height: 0%; background-color: #e74c3c;"></div>
-                                    <div class="bar-label">รับเข้า (<span id="stats-wo-pending">0</span>)</div>
-                                </div>
-                                <div class="bar-item">
-                                    <div class="bar" id="bar-wo-in-progress" style="height: 0%; background-color: #f39c12;"></div>
-                                    <div class="bar-label">ระหว่างซ่อม (<span id="stats-wo-in-progress">0</span>)</div>
-                                </div>
-                                <div class="bar-item">
-                                    <div class="bar" id="bar-wo-completed-stats" style="height: 0%; background-color: #2ecc71;"></div>
-                                    <div class="bar-label">ซ่อมเสร็จ (<span id="stats-wo-completed">0</span>)</div>
-                                </div>
-                            </div>
+                        <div class="chart-container" id="workorder-status-chart-container">
+                            <canvas id="workorder-status-canvas"></canvas>
                         </div>
                     </div>
                 </div>
                 <div class="modern-stat-card">
-                    <div class="card-icon-wrapper bg-red-light"><i class="fas fa-box-open icon-red"></i></div>
+                    <div class="card-header-flex">
+                        <div class="card-icon-wrapper bg-red-light"><i class="fas fa-box-open icon-red"></i></div>
+                        <div class="card-content">
+                            <h3>สินค้าใกล้หมดสต็อก</h3>
+                        </div>
+                    </div>
                     <div class="card-content">
-                        <h3>สินค้าใกล้หมดสต็อก</h3>
                         <div id="low-stock-summary-list">
-                             <ul id="low-stock-list"></ul>
-                             <p class="empty-message" style="display:none;">ไม่มีสินค้าใกล้หมดสต็อก</p>
+                            <ul id="low-stock-list"></ul>
+                            <p class="empty-message" style="display:none;">ไม่มีสินค้าใกล้หมดสต็อก</p>
                         </div>
                         <p style="font-size:0.7em; color: #777; margin-top:0.4rem;">(สินค้าที่จำนวน &lt;= จุดสั่งซื้อ, สูงสุด 5 รายการ)</p>
                     </div>
@@ -356,47 +423,42 @@
             <form id="quote-form">
                 <label for="quote-customer">ชื่อลูกค้า <span class="text-danger">*</span></label>
                 <input type="text" id="quote-customer" class="form-input" required placeholder="ระบุชื่อลูกค้า">
-
                 <label for="quote-phone">เบอร์โทร</label>
-                <input type="text" id="quote-phone" class="form-input" placeholder="ระบุเบอร์โทรศัพท์ (ตัวเลข 9-10 หลัก)" pattern="\d{9,10}" title="กรุณากรอกเบอร์โทร 9-10 หลัก">
-
+                <input type="text" id="quote-phone" class="form-input" placeholder="ระบุเบอร์โทรศัพท์ (ตัวเลข 10 หลัก)" pattern="\d{9,10}" title="กรุณากรอกเบอร์โทร 10 หลัก">
                 <label for="quote-car-info">ข้อมูลรถยนต์ <span class="text-danger">*</span></label>
                 <input type="text" id="quote-car-info" class="form-input" required placeholder="รุ่น, ยี่ห้อ, สี, เลขทะเบียน">
-
                 <label>รายละเอียดงานซ่อมและอะไหล่</label>
                 <div id="quote-items-container" style="margin-top:0.5rem;"></div>
                 <button type="button" id="add-quote-item" class="btn btn-secondary btn-small-action">
                     <i class="fas fa-plus"></i> เพิ่มรายการ
                 </button>
-
                 <label for="quote-discount">ส่วนลดท้ายบิล (บาท)</label>
                 <input type="number" id="quote-discount" class="form-input" min="0" value="0" step="0.01">
-
                 <p class="total-display">ราคารวม: <span id="quote-total">0.00</span> บาท</p>
                 <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">บันทึกใบเสนอราคา</button>
             </form>
         </section>
 
         <section id="workorder-section" class="app-section" aria-label="ใบรับรถเข้าซ่อม">
-                <div class="promo-carousel-container" data-section="workorder-section"></div>
-                <h2>ใบรับรถเข้าซ่อม</h2>
-                <form id="workorder-form">
-                    <label for="select-quote-for-workorder">เลือกใบเสนอราคา <span class="text-danger">*</span></label>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <select id="select-quote-for-workorder" class="form-input" required style="flex-grow: 1;">
-                            <option value="">-- เลือกใบเสนอราคา --</option>
-                        </select>
-                        <button type="button" id="clear-used-quotes-btn" class="btn btn-secondary btn-small-action" title="ล้างรายการใบเสนอราคาที่ถูกใช้ไปแล้วออกจากรายการนี้">
-                            <i class="fas fa-eraser"></i> ล้าง
-                        </button>
-                    </div>
-                    <label for="workorder-note">หมายเหตุเพิ่มเติม</label>
-                    <textarea id="workorder-note" class="form-input" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
-                    <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">บันทึกใบรับรถ</button>
-                </form>
-                <hr style="margin: 2rem 0; border:0; height:1px; background:#dde4ec;">
-                <h3>รายการรถเข้าซ่อม</h3>
-             <div style="margin-bottom: 0.5rem; display:flex; gap: 0.5rem;">
+            <div class="promo-carousel-container" data-section="workorder-section"></div>
+            <h2>ใบรับรถเข้าซ่อม</h2>
+            <form id="workorder-form">
+                <label for="select-quote-for-workorder">เลือกใบเสนอราคา <span class="text-danger">*</span></label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <select id="select-quote-for-workorder" class="form-input" required style="flex-grow: 1;">
+                        <option value="">-- เลือกใบเสนอราคา --</option>
+                    </select>
+                    <button type="button" id="clear-used-quotes-btn" class="btn btn-secondary btn-small-action" title="ล้างรายการใบเสนอราคาที่ถูกใช้ไปแล้วออกจากรายการนี้">
+                        <i class="fas fa-eraser"></i> ล้าง
+                    </button>
+                </div>
+                <label for="workorder-note">หมายเหตุเพิ่มเติม</label>
+                <textarea id="workorder-note" class="form-input" rows="2" placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem;">บันทึกใบรับรถ</button>
+            </form>
+            <hr style="margin: 2rem 0; border:0; height:1px; background:#dde4ec;">
+            <h3>รายการรถเข้าซ่อม</h3>
+            <div style="margin-bottom: 0.5rem; display:flex; gap: 0.5rem;">
                 <button type="button" id="zoom-in-workorder-table" class="btn btn-secondary btn-small-action" style="width:auto; padding:0.4rem 0.8rem; font-size:0.9rem; margin-top:0;"><i class="fas fa-search-plus"></i></button>
                 <button type="button" id="zoom-out-workorder-table" class="btn btn-secondary btn-small-action" style="width:auto; padding:0.4rem 0.8rem; font-size:0.9rem; margin-top:0;"><i class="fas fa-search-minus"></i></button>
             </div>
@@ -412,6 +474,8 @@
                     <tbody id="workorder-list"></tbody>
                 </table>
             </div>
+            <!-- สำหรับตารางรถเข้าซ่อม -->
+            <div id="workorder-pagination" class="pagination-controls"></div>
         </section>
 
         <section id="parts-sale-section" class="app-section" aria-label="ขายอะไหล่และประวัติ">
@@ -426,7 +490,6 @@
                     <i class="fas fa-plus"></i> เพิ่มอะไหล่
                 </button>
                 <datalist id="stock-item-names-datalist"></datalist>
-
                 <label for="parts-discount">ส่วนลดท้ายบิล (บาท)</label>
                 <input type="number" id="parts-discount" class="form-input" min="0" value="0" step="0.01">
                 <p class="total-display">ราคารวม: <span id="parts-total">0.00</span> บาท</p>
@@ -456,6 +519,8 @@
                     <tbody id="sales-history-list"></tbody>
                 </table>
             </div>
+            <!-- สำหรับตารางประวัติการขายอะไหล่ -->
+            <div id="sales-history-pagination" class="pagination-controls"></div>
         </section>
 
         <section id="stock-section" class="app-section" aria-label="จัดการสต็อกสินค้า">
@@ -487,7 +552,7 @@
                        <label for="stock-item-selling-price-input">ราคาขาย: <span class="text-danger">*</span></label>
                         <input type="number" id="stock-item-selling-price-input" class="form-input" required min="0" step="0.01" value="0.00">
                     </div>
-                     <div>
+                    <div>
                         <label for="stock-item-reorder-point-input">จุดสั่งซื้อ:</label>
                         <input type="number" id="stock-item-reorder-point-input" class="form-input" min="0" value="0">
                     </div>
@@ -498,14 +563,12 @@
                 <button type="button" id="stock-cancel-edit-btn" class="btn btn-secondary" style="display:none; margin-top:0.5rem;">ยกเลิกการแก้ไข</button>
             </form>
             <hr style="margin: 2rem 0; border:0; height:1px; background:#dde4ec;">
-
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                 <h3>รายการสินค้าในสต็อก</h3>
                 <button type="button" id="print-stock-table-btn" class="btn btn-secondary btn-small-action" style="width:auto; padding:0.6rem 1.2rem; font-size:0.9em;">
                     <i class="fas fa-print"></i> พิมพ์สต็อก
                 </button>
             </div>
-
             <div class="table-container">
                 <table class="data-table" id="stock-table">
                     <thead>
@@ -519,29 +582,26 @@
                     <tbody id="stock-list-tbody"></tbody>
                 </table>
             </div>
+            <!-- สำหรับตารางสินค้าสต็อก -->
+            <div id="stock-pagination" class="pagination-controls"></div>
         </section>
     </main>
 
     <nav class="bottom-nav">
         <button class="nav-item" data-section-id="dashboard-section">
-            <i class="fas fa-tachometer-alt"></i>
-            <span>ภาพรวม</span>
+            <i class="fas fa-tachometer-alt"></i> <span>ภาพรวม</span>
         </button>
         <button class="nav-item" data-section-id="quote-section">
-            <i class="fas fa-file-invoice-dollar"></i>
-            <span>เสนอราคา</span>
+            <i class="fas fa-file-invoice-dollar"></i> <span>เสนอราคา</span>
         </button>
         <button class="nav-item" data-section-id="workorder-section">
-            <i class="fas fa-tools"></i>
-            <span>ใบรับรถ</span>
+            <i class="fas fa-tools"></i> <span>ใบรับรถ</span>
         </button>
         <button class="nav-item" data-section-id="parts-sale-section">
-            <i class="fas fa-cash-register"></i>
-            <span>ขายอะไหล่</span>
+            <i class="fas fa-cash-register"></i> <span>ขายอะไหล่</span>
         </button>
         <button class="nav-item" data-section-id="stock-section">
-            <i class="fas fa-boxes"></i>
-            <span>สต็อก</span>
+            <i class="fas fa-boxes"></i> <span>สต็อก</span>
         </button>
     </nav>
 
@@ -552,1551 +612,1049 @@
     <div id="promo-admin-icon" title="จัดการโปรโมชั่น" aria-label="จัดการโปรโมชั่น" role="button" tabindex="0">&#x1F4E3;</div>
 
     <script>
-// --- START OF V2.2 SCRIPT (MODIFIED WITH PRINT ENHANCEMENTS) ---
-const deletePassword = "1234";
-let promoImages = [];
-let promoCurrentIndex = 0;
-let promoAdminMode = false;
+    // --- START OF SCRIPT ---
+    const deletePassword = "1234";
+    let promoImages = [];
+    let promoCurrentIndex = 0;
+    let promoAdminMode = false;
 
-// --- PROMO CAROUSEL FUNCTIONS (from V2.2) ---
-function loadPromoImages() {
-    const stored = localStorage.getItem('promoImages_v2.2_merged');
-    try { promoImages = stored ? JSON.parse(stored) : []; } catch { promoImages = [];}
-    if (!Array.isArray(promoImages)) promoImages = [];
-    if (promoImages.length === 0) {
-        promoImages = [
-            { url: 'https://via.placeholder.com/360x150?text=Promotion+1+Default', alt: 'โปรโมชั่นเริ่มต้น 1' },
-            { url: 'https://via.placeholder.com/360x150?text=Promotion+2+Default', alt: 'โปรโมชั่นเริ่มต้น 2' },
-        ];
-        savePromoImages();
+    let quotes = [];
+    let workorders = [];
+    let partsSaleItems = [];
+    let stockItems = []; // Single declaration
+
+    let monthlySummaryPieInstance = null;
+    let monthlySalesPieInstance = null;
+    let workOrderStatusChartInstance = null;
+
+    let currentWorkorderPage = 1;
+    const workorderItemsPerPage = 5;
+
+    let currentSaleHistoryPage = 1;
+    const saleHistoryItemsPerPage = 5;
+
+    let currentStockPage = 1;
+    const stockItemsPerPage = 5;
+
+    // --- PROMO CAROUSEL FUNCTIONS ---
+    function loadPromoImages() {
+        const stored = localStorage.getItem('promoImages_v2.2_merged');
+        try { promoImages = stored ? JSON.parse(stored) : []; } catch { promoImages = []; }
+        if (!Array.isArray(promoImages)) promoImages = [];
+        if (promoImages.length === 0) {
+            promoImages = [
+                { url: 'https://via.placeholder.com/360x150?text=Promotion+1+Default', alt: 'โปรโมชั่นเริ่มต้น 1' },
+                { url: 'https://via.placeholder.com/360x150?text=Promotion+2+Default', alt: 'โปรโมชั่นเริ่มต้น 2' },
+            ];
+            savePromoImages();
+        }
+        promoCurrentIndex = promoImages.length > 0 ? 0 : -1;
     }
-    promoCurrentIndex = promoImages.length > 0 ? 0 : -1;
-}
-function savePromoImages() { localStorage.setItem('promoImages_v2.2_merged', JSON.stringify(promoImages)); }
-function renderPromoCarousel(sectionId) {
-    const container = document.querySelector(`.promo-carousel-container[data-section="${sectionId}"]`);
-    if (!container) {
-        return;
+    function savePromoImages() { localStorage.setItem('promoImages_v2.2_merged', JSON.stringify(promoImages)); }
+    function renderPromoCarousel(sectionId) {
+        const container = document.querySelector(`.promo-carousel-container[data-section="${sectionId}"]`);
+        if (!container) return;
+        container.innerHTML = '';
+        if (promoImages.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px 10px; border:1px dashed #cbd5e0; border-radius:6px; color:#777; margin-top:1rem;">ยังไม่มีโปรโมชั่นในขณะนี้</p>';
+            return;
+        }
+        const carouselDiv = document.createElement('div');
+        carouselDiv.className = 'promo-carousel';
+        const img = document.createElement('img');
+        if (promoImages.length > 0 && promoImages[promoCurrentIndex]) {
+            img.src = promoImages[promoCurrentIndex].url;
+            img.alt = promoImages[promoCurrentIndex].alt || "โปรโมชั่น";
+        } else {
+            img.src = 'https://via.placeholder.com/360x150?text=No+Promotion';
+            img.alt = 'ไม่มีโปรโมชั่น';
+        }
+        carouselDiv.appendChild(img);
+        if (promoImages.length > 1) {
+            const prevArrow = document.createElement('button');
+            prevArrow.className = 'carousel-arrow prev';
+            prevArrow.innerHTML = '&#10094;';
+            prevArrow.onclick = () => {
+                promoCurrentIndex = (promoCurrentIndex - 1 + promoImages.length) % promoImages.length;
+                renderAllPromoCarousels();
+            };
+            carouselDiv.appendChild(prevArrow);
+            const nextArrow = document.createElement('button');
+            nextArrow.className = 'carousel-arrow next';
+            nextArrow.innerHTML = '&#10095;';
+            nextArrow.onclick = () => {
+                promoCurrentIndex = (promoCurrentIndex + 1) % promoImages.length;
+                renderAllPromoCarousels();
+            };
+            carouselDiv.appendChild(nextArrow);
+        }
+        container.appendChild(carouselDiv);
+        const activeSectionElement = document.querySelector('section.app-section.active');
+        if (promoAdminMode && activeSectionElement && container.dataset.section === activeSectionElement.id) {
+            renderPromoAdminPanel(container);
+        }
     }
-    container.innerHTML = '';
-    if (promoImages.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:20px 10px; border:1px dashed #cbd5e0; border-radius:6px; color:#777; margin-top:1rem;">ยังไม่มีโปรโมชั่นในขณะนี้</p>';
-        return;
-    }
-
-    const carouselDiv = document.createElement('div');
-    carouselDiv.className = 'promo-carousel';
-
-    const img = document.createElement('img');
-    if (promoImages.length > 0 && promoImages[promoCurrentIndex]) {
-        img.src = promoImages[promoCurrentIndex].url;
-        img.alt = promoImages[promoCurrentIndex].alt || "โปรโมชั่น";
-    } else {
-        img.src = 'https://via.placeholder.com/360x150?text=No+Promotion';
-        img.alt = 'ไม่มีโปรโมชั่น';
-    }
-    carouselDiv.appendChild(img);
-
-    if (promoImages.length > 1) {
-        const prevArrow = document.createElement('button');
-        prevArrow.className = 'carousel-arrow prev';
-        prevArrow.innerHTML = '&#10094;';
-        prevArrow.onclick = () => {
-            promoCurrentIndex = (promoCurrentIndex - 1 + promoImages.length) % promoImages.length;
-            renderAllPromoCarousels();
-        };
-        carouselDiv.appendChild(prevArrow);
-
-        const nextArrow = document.createElement('button');
-        nextArrow.className = 'carousel-arrow next';
-        nextArrow.innerHTML = '&#10095;';
-        nextArrow.onclick = () => {
-            promoCurrentIndex = (promoCurrentIndex + 1) % promoImages.length;
-            renderAllPromoCarousels();
-        };
-        carouselDiv.appendChild(nextArrow);
-    }
-    container.appendChild(carouselDiv);
-
-    const activeSectionElement = document.querySelector('section.app-section.active');
-    if (promoAdminMode && activeSectionElement && container.dataset.section === activeSectionElement.id) {
-        renderPromoAdminPanel(container);
-    }
-}
-
-function renderPromoAdminPanel(carouselContainer) {
-    if (!carouselContainer) return;
-    let adminPanel = carouselContainer.querySelector('.promo-admin-panel');
-    if (!adminPanel) {
-        adminPanel = document.createElement('div');
-        adminPanel.className = 'promo-admin-panel';
-        carouselContainer.appendChild(adminPanel);
-    }
-    adminPanel.innerHTML = `
-        <h4>จัดการโปรโมชั่น (รูปภาพ URL)</h4>
-        <label for="new-promo-url-${carouselContainer.dataset.section}">URL รูปภาพใหม่:</label>
-        <input type="text" class="form-input" id="new-promo-url-${carouselContainer.dataset.section}" placeholder="https://example.com/image.jpg">
-        <label for="new-promo-alt-${carouselContainer.dataset.section}">คำอธิบายรูปภาพ (Alt text):</label>
-        <input type="text" class="form-input" id="new-promo-alt-${carouselContainer.dataset.section}" placeholder="รายละเอียดโปรโมชั่น">
-        <button id="add-new-promo-btn-${carouselContainer.dataset.section}">เพิ่มรูปภาพ</button>
-        <div class="promo-thumb-list" id="promo-thumb-list-${carouselContainer.dataset.section}"></div>
-    `;
-
-    const thumbList = adminPanel.querySelector(`#promo-thumb-list-${carouselContainer.dataset.section}`);
-    thumbList.innerHTML = '';
-    promoImages.forEach((promo, index) => {
-        const thumbDiv = document.createElement('div');
-        thumbDiv.className = 'promo-thumb' + (index === promoCurrentIndex ? ' selected' : '');
-        thumbDiv.innerHTML = `<img src="${promo.url}" alt="${promo.alt || ''}">
-                                <button class="btn-remove" data-index="${index}">&times;</button>`;
-        thumbDiv.onclick = (e) => {
-            if (e.target.classList.contains('btn-remove')) {
-                e.stopPropagation();
-                const idxToRemove = parseInt(e.target.dataset.index);
-                if (confirm('ต้องการลบรูปโปรโมชั่นนี้หรือไม่?')) {
-                    promoImages.splice(idxToRemove, 1);
-                    if (promoCurrentIndex >= promoImages.length) {
-                        promoCurrentIndex = Math.max(0, promoImages.length - 1);
+    function renderPromoAdminPanel(carouselContainer) {
+        if (!carouselContainer) return;
+        let adminPanel = carouselContainer.querySelector('.promo-admin-panel');
+        if (!adminPanel) {
+            adminPanel = document.createElement('div');
+            adminPanel.className = 'promo-admin-panel';
+            carouselContainer.appendChild(adminPanel);
+        }
+        adminPanel.innerHTML = `
+            <h4>จัดการโปรโมชั่น (รูปภาพ URL)</h4>
+            <label for="new-promo-url-${carouselContainer.dataset.section}">URL รูปภาพใหม่:</label>
+            <input type="text" class="form-input" id="new-promo-url-${carouselContainer.dataset.section}" placeholder="https://example.com/image.jpg">
+            <label for="new-promo-alt-${carouselContainer.dataset.section}">คำอธิบายรูปภาพ (Alt text):</label>
+            <input type="text" class="form-input" id="new-promo-alt-${carouselContainer.dataset.section}" placeholder="รายละเอียดโปรโมชั่น">
+            <button id="add-new-promo-btn-${carouselContainer.dataset.section}">เพิ่มรูปภาพ</button>
+            <div class="promo-thumb-list" id="promo-thumb-list-${carouselContainer.dataset.section}"></div>
+        `;
+        const thumbList = adminPanel.querySelector(`#promo-thumb-list-${carouselContainer.dataset.section}`);
+        thumbList.innerHTML = '';
+        promoImages.forEach((promo, index) => {
+            const thumbDiv = document.createElement('div');
+            thumbDiv.className = 'promo-thumb' + (index === promoCurrentIndex ? ' selected' : '');
+            thumbDiv.innerHTML = `<img src="${promo.url}" alt="${promo.alt || ''}">
+                                  <button class="btn-remove" data-index="${index}">&times;</button>`;
+            thumbDiv.onclick = (e) => {
+                if (e.target.classList.contains('btn-remove')) {
+                    e.stopPropagation();
+                    const idxToRemove = parseInt(e.target.dataset.index);
+                    if (confirm('ต้องการลบรูปโปรโมชั่นนี้หรือไม่?')) {
+                        promoImages.splice(idxToRemove, 1);
+                        if (promoCurrentIndex >= promoImages.length) {
+                            promoCurrentIndex = Math.max(0, promoImages.length - 1);
+                        }
+                        savePromoImages();
+                        renderAllPromoCarousels();
                     }
+                } else {
+                    promoCurrentIndex = index;
                     savePromoImages();
                     renderAllPromoCarousels();
                 }
-            } else {
-                promoCurrentIndex = index;
+            };
+            thumbList.appendChild(thumbDiv);
+        });
+        adminPanel.querySelector(`#add-new-promo-btn-${carouselContainer.dataset.section}`).onclick = () => {
+            const urlInput = adminPanel.querySelector(`#new-promo-url-${carouselContainer.dataset.section}`);
+            const altInput = adminPanel.querySelector(`#new-promo-alt-${carouselContainer.dataset.section}`);
+            const newUrl = urlInput.value.trim();
+            const newAlt = altInput.value.trim();
+            if (newUrl) {
+                promoImages.push({ url: newUrl, alt: newAlt });
+                promoCurrentIndex = promoImages.length - 1;
                 savePromoImages();
                 renderAllPromoCarousels();
+                urlInput.value = '';
+                altInput.value = '';
+            } else {
+                alert('กรุณาใส่ URL ของรูปภาพโปรโมชั่น');
             }
         };
-        thumbList.appendChild(thumbDiv);
-    });
-
-    adminPanel.querySelector(`#add-new-promo-btn-${carouselContainer.dataset.section}`).onclick = () => {
-        const urlInput = adminPanel.querySelector(`#new-promo-url-${carouselContainer.dataset.section}`);
-        const altInput = adminPanel.querySelector(`#new-promo-alt-${carouselContainer.dataset.section}`);
-        const newUrl = urlInput.value.trim();
-        const newAlt = altInput.value.trim();
-        if (newUrl) {
-            promoImages.push({ url: newUrl, alt: newAlt });
-            promoCurrentIndex = promoImages.length - 1;
-            savePromoImages();
-            renderAllPromoCarousels();
-            urlInput.value = '';
-            altInput.value = '';
-        } else {
-            alert('กรุณาใส่ URL ของรูปภาพโปรโมชั่น');
-        }
-    };
-}
-
-function renderAllPromoCarousels() {
-    ['quote-section', 'workorder-section', 'parts-sale-section'].forEach(sectionId => {
-        const sectionEl = document.getElementById(sectionId);
-        if (sectionEl && sectionEl.classList.contains('app-section')) {
-            const promoContainer = sectionEl.querySelector('.promo-carousel-container');
-            if (promoContainer) {
-                renderPromoCarousel(sectionId);
+    }
+    function renderAllPromoCarousels() {
+        ['quote-section', 'workorder-section', 'parts-sale-section'].forEach(sectionId => {
+            const sectionEl = document.getElementById(sectionId);
+            if (sectionEl && sectionEl.classList.contains('app-section')) {
+                const promoContainer = sectionEl.querySelector('.promo-carousel-container');
+                if (promoContainer) renderPromoCarousel(sectionId);
             }
-        }
-    });
-}
-function togglePromoAdminMode() {
-    promoAdminMode = !promoAdminMode;
-    const promoAdminIcon = document.getElementById('promo-admin-icon');
-    if (promoAdminIcon) {
-      promoAdminIcon.style.backgroundColor = promoAdminMode ? '#2ecc71' : '#e74c3c';
-      promoAdminIcon.textContent = promoAdminMode ? '✔️' : '\uD83D\uDCE3';
-    }
-    renderAllPromoCarousels();
-}
-
-let quotes = [];
-let workorders = [];
-let partsSaleItems = [];
-let stockItems = [];
-
-// --- DATA HANDLING (V2.2 Logic with robust loading) ---
-function loadData() {
-    const loadItem = (key, defaultValue = []) => {
-        try {
-            const storedValue = localStorage.getItem(key);
-            const parsed = storedValue ? JSON.parse(storedValue) : defaultValue;
-            return Array.isArray(parsed) ? parsed : defaultValue;
-        } catch (e) {
-            console.error(`Error loading ${key}:`, e);
-            return defaultValue;
-        }
-    };
-    quotes = loadItem('quotes_v2.2_merged');
-    workorders = loadItem('workorders_v2.2_merged');
-    partsSaleItems = loadItem('partsSaleItems_v2.2_merged');
-    stockItems = loadItem('stockItems_v2.2_merged');
-
-    stockItems = stockItems.filter(item => typeof item === 'object' && item !== null && item.name).map(item => ({
-        ...item,
-        quantity: Number(item.quantity) || 0,
-        costPrice: Number(item.costPrice) || 0,
-        sellingPrice: Number(item.sellingPrice) || 0,
-        reorderPoint: Number(item.reorderPoint) || 0,
-    }));
-    console.log("Data loaded (V2.2 Merged).");
-}
-
-function saveData() {
-    try {
-        localStorage.setItem('quotes_v2.2_merged', JSON.stringify(quotes));
-        localStorage.setItem('workorders_v2.2_merged', JSON.stringify(workorders));
-        localStorage.setItem('partsSaleItems_v2.2_merged', JSON.stringify(partsSaleItems));
-        localStorage.setItem('stockItems_v2.2_merged', JSON.stringify(stockItems));
-        console.log("Data saved (V2.2 Merged).");
-    } catch (e) {
-        console.error("Error saving data:", e);
-        alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล!");
-    }
-    updateDashboardStats();
-    refreshQuoteSelect();
-    refreshWorkorderList();
-    refreshPartsSalesHistoryList();
-    refreshStockList();
-    updateStockItemDatalist();
-}
-
-function generateId(prefix) {
-    const now = new Date();
-    return prefix + now.getFullYear().toString().slice(-2) +
-        (now.getMonth() + 1).toString().padStart(2, '0') +
-        now.getDate().toString().padStart(2, '0') +
-        Math.floor(Math.random() * 9000 + 1000);
-}
-
-// --- QUOTE SECTION ---
-function createQuoteItemInput(name = '', price = 0) {
-    const div = document.createElement("div");
-    div.className = "form-line-item";
-
-    const inputName = document.createElement("input");
-    inputName.type = "text"; inputName.placeholder = "ชื่อบริการ / อะไหล่"; inputName.required = true;
-    inputName.value = name; inputName.className = "form-input item-name-input";
-
-    const inputPrice = document.createElement("input");
-    inputPrice.type = "number"; inputPrice.min = "0"; inputPrice.step = "0.01";
-    inputPrice.placeholder = "ราคา"; inputPrice.required = true;
-    inputPrice.value = price > 0 ? price.toFixed(2) : '';
-    inputPrice.className = "form-input item-price-input";
-
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button"; removeBtn.className = "btn-icon danger remove-line-item";
-    removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    removeBtn.onclick = () => { div.remove(); recalcQuoteTotal(); };
-
-    inputPrice.oninput = recalcQuoteTotal;
-    inputName.onblur = recalcQuoteTotal;
-    div.appendChild(inputName); div.appendChild(inputPrice); div.appendChild(removeBtn);
-    return div;
-}
-
-function recalcQuoteTotal() {
-    const quoteItemsContainer = document.getElementById("quote-items-container");
-    const quoteTotalSpan = document.getElementById("quote-total");
-    const quoteDiscountInput = document.getElementById("quote-discount");
-    if (!quoteItemsContainer || !quoteTotalSpan || !quoteDiscountInput) return;
-    let currentTotal = 0;
-    Array.from(quoteItemsContainer.children).forEach(child => {
-        const priceInput = child.querySelector('.item-price-input');
-        if (priceInput && priceInput.value) {
-            currentTotal += parseFloat(priceInput.value) || 0;
-        }
-    });
-    const discount = parseFloat(quoteDiscountInput.value) || 0;
-    const finalTotal = Math.max(0, currentTotal - discount);
-    quoteTotalSpan.textContent = finalTotal.toFixed(2);
-}
-
-function refreshQuoteSelect() {
-    const selectQuoteForWorkorder = document.getElementById("select-quote-for-workorder");
-    if (!selectQuoteForWorkorder) return;
-
-    const previouslySelectedQuoteId = selectQuoteForWorkorder.value; // เก็บค่าที่เลือกไว้ก่อนหน้า
-
-    selectQuoteForWorkorder.innerHTML = '<option value="">-- เลือกใบเสนอราคา --</option>';
-
-    // สร้าง Set ของ quote IDs ที่ถูกใช้ไปแล้วใน workorders เพื่อการค้นหาที่เร็วขึ้น
-    const usedQuoteIds = new Set();
-    workorders.forEach(wo => {
-        if (wo.quote && wo.quote.id) {
-            usedQuoteIds.add(wo.quote.id);
-        }
-    });
-
-    // กรอง quotes เฉพาะที่ยังไม่ได้ถูกใช้ และจัดเรียงตามวันที่สร้างใหม่สุดไปเก่าสุด
-    const availableQuotes = quotes
-        .filter(q => !usedQuoteIds.has(q.id)) // กรองใบเสนอราคาที่ยังไม่ถูกใช้
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    availableQuotes.forEach(q => {
-        const option = document.createElement("option");
-        option.value = q.id;
-        option.textContent = `${q.id} | ${q.customer} (${q.carInfo || 'N/A'}) | ${q.total.toFixed(2)} บ.`;
-        selectQuoteForWorkorder.appendChild(option);
-    });
-
-    // พยายามเลือกใบเสนอราคาที่เคยเลือกไว้ก่อนหน้า ถ้ายังคงมีอยู่ในรายการที่กรองแล้ว
-    if (availableQuotes.some(q => q.id === previouslySelectedQuoteId)) {
-        selectQuoteForWorkorder.value = previouslySelectedQuoteId;
-    }
-    // หากไม่มีการเลือกก่อนหน้า หรือรายการที่เลือกไว้ถูกกรองออกไปแล้ว ค่าจะถูกตั้งเป็น "-- เลือกใบเสนอราคา --" โดยอัตโนมัติ
-}
-
-function printQuote(quote) {
-    if (!quote || !quote.items) {
-        console.error("Invalid quote data for printing.");
-        alert("ไม่สามารถพิมพ์ใบเสนอราคาได้: ข้อมูลไม่ถูกต้อง");
-        return;
-    }
-    const printAreaEl = document.getElementById("print-area");
-    if (!printAreaEl) {
-        console.error("Print area element not found!");
-        alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์");
-        return;
-    }
-
-    // --- BEGIN SHOP INFO (แก้ไขข้อมูลอู่ของคุณที่นี่) ---
-    const shopInfo = {
-        name: "อู่ซ่อมรถยนต์ ที.เจ ยนต์",
-        addressLine1: "123/45 ถนนตัวอย่าง",
-        addressLine2: "แขวงสาธิต เขตทดลอง กรุงเทพฯ 10000",
-        phone: "02-000-0000, 080-000-0000",
-        taxId: "0123456789012", // ถ้ามี
-        logoUrl: "" // "https://via.placeholder.com/150x50?text=LOGO" // URL โลโก้ (ถ้ามี)
-    };
-    // --- END SHOP INFO ---
-
-    let itemsHtml = '';
-    let subtotal = 0;
-    quote.items.forEach((item, index) => {
-        const itemPrice = parseFloat(item.price) || 0;
-        itemsHtml += `
-            <tr>
-                <td style="text-align:center; border:1px solid #ccc; padding:5px;">${index + 1}</td>
-                <td style="border:1px solid #ccc; padding:5px;">${item.name || 'N/A'}</td>
-                <td style="text-align:right; border:1px solid #ccc; padding:5px;">${itemPrice.toFixed(2)}</td>
-            </tr>
-        `;
-        subtotal += itemPrice;
-    });
-
-    const discountAmount = parseFloat(quote.discount) || 0;
-    const grandTotal = subtotal - discountAmount;
-    const vatRate = 0.00; // สมมติว่าไม่มี VAT หรือเป็น 0.07 ถ้ามี
-    const vatAmount = vatRate > 0 ? grandTotal * vatRate : 0;
-    const totalWithVat = grandTotal + vatAmount;
-
-
-    const html = `
-        <div style="font-family: 'Sarabun', Arial, sans-serif; font-size: 10pt; color: #000; background: #fff; padding: 20px; max-width: 210mm; margin:auto;">
-            <table style="width:100%; border-collapse:collapse; margin-bottom:15px;">
-                <tr>
-                    <td style="width:60%;">
-                        ${shopInfo.logoUrl ? `<img src="${shopInfo.logoUrl}" alt="Logo" style="max-height:50px; margin-bottom:10px;"><br>` : ''}
-                        <strong style="font-size:1.2em;">${shopInfo.name}</strong><br>
-                        <span style="font-size:0.9em;">${shopInfo.addressLine1}</span><br>
-                        <span style="font-size:0.9em;">${shopInfo.addressLine2}</span><br>
-                        <span style="font-size:0.9em;">โทร: ${shopInfo.phone}</span><br>
-                        ${shopInfo.taxId ? `<span style="font-size:0.9em;">เลขประจำตัวผู้เสียภาษี: ${shopInfo.taxId}</span>` : ''}
-                    </td>
-                    <td style="width:40%; text-align:right; vertical-align:top;">
-                        <h1 style="margin:0; font-size:1.8em; color:#333;">ใบเสนอราคา</h1>
-                        <p style="margin:5px 0;"><strong>เลขที่:</strong> ${quote.id || 'N/A'}</p>
-                        <p style="margin:5px 0;"><strong>วันที่:</strong> ${new Date(quote.createdAt || Date.now()).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    </td>
-                </tr>
-            </table>
-            <hr style="border:0; border-top:1px solid #ccc; margin:15px 0;">
-            <table style="width:100%; margin-bottom:10px; font-size:0.95em;">
-                <tr><td style="width:15%; vertical-align:top;"><strong>ลูกค้า:</strong></td><td style="width:85%;">${quote.customer || 'N/A'}</td></tr>
-                <tr><td style="vertical-align:top;"><strong>โทรศัพท์:</strong></td><td>${quote.phone || '-'}</td></tr>
-                <tr><td style="vertical-align:top;"><strong>ข้อมูลรถ:</strong></td><td>${quote.carInfo || 'N/A'}</td></tr>
-            </table>
-            <table style="width:100%; border-collapse:collapse; font-size:0.9em; margin-top:15px;">
-                <thead>
-                    <tr style="background-color:#f0f0f0; font-weight:bold;">
-                        <th style="width:10%; text-align:center; border:1px solid #ccc; padding:6px;">ลำดับ</th>
-                        <th style="width:60%; text-align:left; border:1px solid #ccc; padding:6px;">รายการ</th>
-                        <th style="width:30%; text-align:right; border:1px solid #ccc; padding:6px;">จำนวนเงิน (บาท)</th>
-                    </tr>
-                </thead>
-                <tbody>${itemsHtml}</tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2" style="text-align:right; font-weight:bold; border-top:1px solid #ccc; padding:5px;">รวมเป็นเงิน:</td>
-                        <td style="text-align:right; font-weight:bold; border-top:1px solid #ccc; padding:5px;">${subtotal.toFixed(2)}</td>
-                    </tr>
-                    ${discountAmount > 0 ? `
-                    <tr>
-                        <td colspan="2" style="text-align:right; font-weight:bold; padding:5px;">ส่วนลด:</td>
-                        <td style="text-align:right; font-weight:bold; padding:5px;">-${discountAmount.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align:right; font-weight:bold; padding:5px;">ยอดหลังหักส่วนลด:</td>
-                        <td style="text-align:right; font-weight:bold; padding:5px;">${grandTotal.toFixed(2)}</td>
-                    </tr>` : ''}
-                    ${vatAmount > 0 ? `
-                    <tr>
-                        <td colspan="2" style="text-align:right; font-weight:bold; padding:5px;">ภาษีมูลค่าเพิ่ม ${vatRate*100}%:</td>
-                        <td style="text-align:right; font-weight:bold; padding:5px;">${vatAmount.toFixed(2)}</td>
-                    </tr>` : ''}
-                    <tr style="background-color:#f0f0f0;">
-                        <td colspan="2" style="text-align:right; font-weight:bold; font-size:1.1em; padding:8px;">ยอดรวมสุทธิ:</td>
-                        <td style="text-align:right; font-weight:bold; font-size:1.1em; padding:8px;">${(vatAmount > 0 ? totalWithVat : grandTotal).toFixed(2)}</td>
-                    </tr>
-                </tfoot>
-            </table>
-            <div style="margin-top:25px; font-size:0.85em;">
-                <p><strong>หมายเหตุ:</strong></p>
-                <ul style="padding-left:20px; margin-top:5px;">
-                    ${vatAmount === 0 ? '<li>ราคานี้ยังไม่รวมภาษีมูลค่าเพิ่ม</li>' : '<li>ราคานี้รวมภาษีมูลค่าเพิ่มแล้ว</li>'}
-                    <li>ใบเสนอราคานี้มีผลบังคับใช้ 30 วัน นับจากวันที่ออก</li>
-                    <li>การรับประกันงานซ่อมเป็นไปตามเงื่อนไขของอู่</li>
-                </ul>
-            </div>
-            <table style="width:100%; margin-top:50px; font-size:0.9em;">
-                <tr>
-                    <td style="width:50%; text-align:center; padding-top:40px;"><p>....................................................</p><p>(ลูกค้า)</p></td>
-                    <td style="width:50%; text-align:center; padding-top:40px;"><p>....................................................</p><p>(ผู้อนุมัติ)</p><p>${shopInfo.name}</p></td>
-                </tr>
-            </table>
-            <p style="text-align:center; margin-top:20px; font-size:0.8em;"><i>ขอขอบคุณที่ให้ความไว้วางใจใช้บริการ</i></p>
-        </div>
-    `;
-    printAreaEl.innerHTML = html;
-    printAreaEl.classList.add('active-for-print');
-    window.print();
-    printAreaEl.classList.remove('active-for-print');
-    printAreaEl.innerHTML = '';
-}
-
-// --- WORKORDER SECTION ---
-function refreshWorkorderList() {
-    const workorderListTbody = document.getElementById("workorder-list");
-    if (!workorderListTbody) return;
-    workorderListTbody.innerHTML = "";
-
-    if (workorders.length === 0) {
-        const tr = workorderListTbody.insertRow();
-        const td = tr.insertCell();
-        td.colSpan = 9;
-        td.style.textAlign = "center";
-        td.textContent = "ยังไม่มีรถเข้าซ่อม";
-        return;
-    }
-
-    const statusOrder = {"รับเข้าซ่อม": 1, "ระหว่างซ่อม": 2, "ซ่อมเสร็จแล้ว": 3};
-    const sortedWorkorders = [...workorders].sort((a,b) => (statusOrder[a.status] - statusOrder[b.status]) || (new Date(b.receivedAt) - new Date(a.receivedAt)));
-
-    sortedWorkorders.forEach(w => {
-        if (!w || !w.quote) { console.warn("Invalid workorder:", w); return; }
-
-        const tr = workorderListTbody.insertRow();
-        tr.insertCell().textContent = w.id || 'N/A';
-        tr.insertCell().textContent = w.quote.customer || 'N/A';
-        tr.insertCell().textContent = w.quote.phone || '-';
-        tr.insertCell().textContent = w.quote.carInfo || 'N/A';
-        tr.insertCell().textContent = new Date(w.receivedAt || Date.now()).toLocaleString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour:'2-digit', minute:'2-digit' });
-
-        const tdDetails = tr.insertCell();
-        const ul = document.createElement("ul");
-        ul.className = "detail-list-table";
-        if (w.quote.items && Array.isArray(w.quote.items)) {
-            w.quote.items.forEach(item => {
-                const li = document.createElement("li");
-                li.textContent = `${item.name || 'N/A'} (${(parseFloat(item.price) || 0).toFixed(2)})`;
-                ul.appendChild(li);
-            });
-            if (w.quote.discount > 0) {
-                const liDisc = document.createElement("li");
-                liDisc.style.fontWeight = "bold";
-                liDisc.textContent = `ส่วนลด: ${(parseFloat(w.quote.discount) || 0).toFixed(2)}`;
-                ul.appendChild(liDisc);
-            }
-        } else { ul.textContent = "-"; }
-        tdDetails.appendChild(ul);
-
-        const tdPrice = tr.insertCell();
-        tdPrice.className = "text-right";
-        tdPrice.textContent = (parseFloat(w.quote.total) || 0).toFixed(2);
-
-        const tdStatus = tr.insertCell();
-        const selectStatus = document.createElement("select");
-        selectStatus.className = `form-input status-select-visual status-${(w.status || 'รับเข้าซ่อม').replace(/\s+/g, '-')}`;
-        selectStatus.dataset.workorderId = w.id;
-        ["รับเข้าซ่อม", "ระหว่างซ่อม", "ซ่อมเสร็จแล้ว"].forEach(status => {
-            const option = document.createElement("option");
-            option.value = status; option.textContent = status;
-            if (w.status === status) option.selected = true;
-            selectStatus.appendChild(option);
-        });
-        selectStatus.onchange = () => {
-            const selectedWO = workorders.find(wo => wo.id === w.id);
-            if(selectedWO) {
-                selectedWO.status = selectStatus.value;
-                selectedWO.updatedAt = new Date().toISOString();
-                selectStatus.className = `form-input status-select-visual status-${selectStatus.value.replace(/\s+/g, '-')}`;
-                saveData();
-            }
-        };
-        tdStatus.appendChild(selectStatus);
-
-        const tdAction = tr.insertCell();
-        tdAction.className = "table-actions";
-        const btnPrintWorkOrder = document.createElement("button");
-        btnPrintWorkOrder.className = "btn-icon info";
-        btnPrintWorkOrder.innerHTML = '<i class="fas fa-print"></i>';
-        btnPrintWorkOrder.setAttribute("aria-label", "พิมพ์ใบงาน");
-        btnPrintWorkOrder.onclick = () => printWorkOrderCard(w);
-
-        const btnDel = document.createElement("button");
-        btnDel.className = "btn-icon danger";
-        btnDel.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        btnDel.setAttribute("aria-label", "ลบใบงาน");
-        btnDel.onclick = () => deleteWorkorderWithPassword(w.id);
-
-        tdAction.appendChild(btnPrintWorkOrder);
-        tdAction.appendChild(btnDel);
-    });
-}
-
-function deleteWorkorderWithPassword(workorderId) {
-    const pass = prompt("กรุณากรอกรหัสผ่านเพื่อลบใบรับรถ:");
-    if (pass === deletePassword) {
-        const index = workorders.findIndex(w => w.id === workorderId);
-        if (index > -1) {
-            workorders.splice(index, 1);
-            saveData();
-            alert("ลบใบรับรถเรียบร้อยแล้ว");
-        }
-    } else if (pass !== null) {
-        alert("รหัสผ่านไม่ถูกต้อง");
-    }
-}
-
-function printWorkOrderCard(workOrder) {
-    if (!workOrder || !workOrder.quote || !workOrder.quote.items) {
-        alert("ข้อมูลใบงานไม่สมบูรณ์สำหรับพิมพ์");
-        return;
-    }
-    const printAreaEl = document.getElementById("print-area");
-    if (!printAreaEl) {
-        alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์");
-        return;
-    }
-
-    const shopInfo = {
-        name: "อู่ซ่อมรถยนต์ ที.เจ ยนต์",
-        addressLine1: "123/45 ถนนตัวอย่าง",
-        addressLine2: "แขวงสาธิต เขตทดลอง กรุงเทพฯ 10000",
-        phone: "02-000-0000, 080-000-0000",
-        logoUrl: "" // "https://via.placeholder.com/150x50?text=LOGO"
-    };
-
-    let itemsHtml = '';
-    let subtotal = 0;
-    workOrder.quote.items.forEach((item, index) => {
-        const itemPrice = parseFloat(item.price || 0);
-        itemsHtml += `
-            <tr>
-                <td style="text-align:center; border:1px solid #ddd; padding:8px; font-size:0.9em;">${index + 1}</td>
-                <td style="border:1px solid #ddd; padding:8px; font-size:0.9em;">${item.name}</td>
-                <td style="text-align:right; border:1px solid #ddd; padding:8px; font-size:0.9em;">${itemPrice.toFixed(2)}</td>
-            </tr>
-        `;
-        subtotal += itemPrice;
-    });
-    const discount = parseFloat(workOrder.quote.discount || 0);
-    const total = subtotal - discount;
-
-    const htmlContent = `
-        <div style="font-family: 'Sarabun', Arial, sans-serif; padding:20px; max-width:210mm; margin:auto; background:#fff; font-size:10pt;">
-            <table style="width:100%; border-collapse:collapse; margin-bottom:15px;">
-                <tr>
-                    <td style="width:60%;">
-                        ${shopInfo.logoUrl ? `<img src="${shopInfo.logoUrl}" alt="Logo" style="max-height:40px; margin-bottom:8px;"><br>` : ''}
-                        <strong style="font-size:1.1em;">${shopInfo.name}</strong><br>
-                        <span style="font-size:0.85em;">${shopInfo.addressLine1}</span><br>
-                        <span style="font-size:0.85em;">${shopInfo.addressLine2}</span><br>
-                        <span style="font-size:0.85em;">โทร: ${shopInfo.phone}</span>
-                    </td>
-                    <td style="width:40%; text-align:right; vertical-align:top;">
-                        <h2 style="margin:0; font-size:1.6em;">ใบรับรถเข้าซ่อม</h2>
-                        <p style="margin:5px 0; font-size:0.9em;">เลขที่: <strong>${workOrder.id}</strong></p>
-                        <p style="margin:5px 0; font-size:0.9em;">วันที่รับรถ: ${new Date(workOrder.receivedAt).toLocaleString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', hour:'2-digit', minute:'2-digit' })}</p>
-                    </td>
-                </tr>
-            </table>
-            <hr style="border:0; border-top:1px solid #ccc; margin:10px 0;">
-            <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:0.95em;">
-                <tr>
-                    <td style="padding:5px; width:100px;"><strong>ลูกค้า:</strong></td>
-                    <td style="padding:5px;">${workOrder.quote.customer}</td>
-                    <td style="padding:5px; width:80px;"><strong>โทร:</strong></td>
-                    <td style="padding:5px;">${workOrder.quote.phone || '-'}</td>
-                </tr>
-                <tr>
-                    <td style="padding:5px;"><strong>ข้อมูลรถ:</strong></td>
-                    <td style="padding:5px;" colspan="3">${workOrder.quote.carInfo}</td>
-                </tr>
-                 <tr>
-                    <td style="padding:5px;"><strong>สถานะปัจจุบัน:</strong></td>
-                    <td style="padding:5px;" colspan="3"><strong>${workOrder.status}</strong></td>
-                </tr>
-                ${workOrder.note ? `
-                <tr>
-                    <td style="padding:5px; vertical-align:top;"><strong>หมายเหตุ:</strong></td>
-                    <td style="padding:5px;" colspan="3">${workOrder.note.replace(/\n/g, "<br>")}</td>
-                </tr>` : ''}
-            </table>
-            <strong style="font-size:1em;">รายการซ่อม/อะไหล่:</strong>
-            <table style="width:100%; border-collapse:collapse; margin-top:5px; margin-bottom:15px;">
-                <thead>
-                    <tr style="background-color:#f2f2f2;">
-                        <th style="width:8%; text-align:center; border:1px solid #ccc; padding:6px; font-size:0.9em;">ลำดับ</th>
-                        <th style="width:62%; text-align:left; border:1px solid #ccc; padding:6px; font-size:0.9em;">รายการ</th>
-                        <th style="width:30%; text-align:right; border:1px solid #ccc; padding:6px; font-size:0.9em;">ราคา (บาท)</th>
-                    </tr>
-                </thead>
-                <tbody>${itemsHtml}</tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2" style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">รวมเป็นเงิน:</td>
-                        <td style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">${subtotal.toFixed(2)}</td>
-                    </tr>
-                    ${discount > 0 ? `
-                    <tr>
-                        <td colspan="2" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ส่วนลด:</td>
-                        <td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">-${discount.toFixed(2)}</td>
-                    </tr>` : ''}
-                    <tr style="background-color:#f2f2f2;">
-                        <td colspan="2" style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">ยอดค่าบริการสุทธิ:</td>
-                        <td style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">${total.toFixed(2)}</td>
-                    </tr>
-                </tfoot>
-            </table>
-            <table style="width:100%; margin-top:40px; font-size:0.9em;">
-                <tr>
-                    <td style="width:50%; text-align:center;">
-                        <p style="margin-bottom:30px;">&nbsp;</p>
-                        <p>....................................................</p>
-                        <p>( ${workOrder.quote.customer} )</p>
-                        <p>ผู้นำรถเข้าซ่อม/ลูกค้า</p>
-                    </td>
-                    <td style="width:50%; text-align:center;">
-                        <p style="margin-bottom:30px;">&nbsp;</p>
-                        <p>....................................................</p>
-                        <p>( ผู้รับรถ )</p>
-                        <p>${shopInfo.name}</p>
-                    </td>
-                </tr>
-            </table>
-            <p style="text-align:center; margin-top:20px; font-size:0.8em;"><i>เงื่อนไขการรับประกัน: รับประกันงานซ่อม 3 เดือน (ไม่รวมอะไหล่ที่ลูกค้านำมาเอง)</i></p>
-        </div>
-    `;
-    printAreaEl.innerHTML = htmlContent;
-    printAreaEl.classList.add('active-for-print');
-    window.print();
-    printAreaEl.classList.remove('active-for-print');
-    printAreaEl.innerHTML = '';
-}
-
-
-// --- PARTS SALE SECTION ---
-function createPartItemInput(name = '', price = 0, qty = 1) {
-    const div = document.createElement("div"); div.className = "form-line-item";
-    const inputName = document.createElement("input");
-    inputName.type = "text"; inputName.placeholder = "ชื่ออะไหล่"; inputName.required = true;
-    inputName.value = name; inputName.className = "form-input item-name-input";
-    inputName.setAttribute('list', 'stock-item-names-datalist');
-
-    const inputQty = document.createElement("input");
-    inputQty.type = "number"; inputQty.min = "1"; inputQty.placeholder = "จำนวน";
-    inputQty.required = true; inputQty.value = qty; inputQty.className = "form-input item-qty-input";
-
-    const inputPrice = document.createElement("input");
-    inputPrice.type = "number"; inputPrice.min = "0"; inputPrice.step = "0.01";
-    inputPrice.placeholder = "ราคา/หน่วย"; inputPrice.required = true;
-    inputPrice.value = price > 0 ? price.toFixed(2) : '';
-    inputPrice.className = "form-input item-price-input";
-
-    inputName.addEventListener('change', (e) => {
-        const selectedStockItem = stockItems.find(si => si.name === e.target.value);
-        if (selectedStockItem) {
-            inputPrice.value = selectedStockItem.sellingPrice.toFixed(2);
-            recalcPartsTotal();
-        }
-    });
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button"; removeBtn.className = "btn-icon danger remove-line-item";
-    removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    removeBtn.onclick = () => { div.remove(); recalcPartsTotal(); };
-    inputPrice.oninput = recalcPartsTotal; inputQty.oninput = recalcPartsTotal;
-    div.appendChild(inputName); div.appendChild(inputQty); div.appendChild(inputPrice); div.appendChild(removeBtn);
-    return div;
-}
-
-function recalcPartsTotal() {
-    const partsItemsContainer = document.getElementById("parts-items-container");
-    const partsTotalSpan = document.getElementById("parts-total");
-    const partsDiscountInput = document.getElementById("parts-discount");
-    if (!partsItemsContainer || !partsTotalSpan || !partsDiscountInput) return;
-    let total = 0;
-    Array.from(partsItemsContainer.children).forEach(child => {
-        const qtyIn = child.querySelector('.item-qty-input');
-        const priceIn = child.querySelector('.item-price-input');
-        if (qtyIn && priceIn && qtyIn.value && priceIn.value) {
-            total += (parseFloat(qtyIn.value) || 0) * (parseFloat(priceIn.value) || 0);
-        }
-    });
-    const discount = parseFloat(partsDiscountInput.value) || 0;
-    total = Math.max(0, total - discount);
-    partsTotalSpan.textContent = total.toFixed(2);
-}
-
-function refreshPartsSalesHistoryList() {
-    const salesHistoryListTbody = document.getElementById("sales-history-list");
-    if (!salesHistoryListTbody) return;
-    salesHistoryListTbody.innerHTML = "";
-
-    if (partsSaleItems.length === 0) {
-        const tr = salesHistoryListTbody.insertRow();
-        const td = tr.insertCell();
-        td.colSpan = 7;
-        td.textContent = "ยังไม่มีประวัติการขาย";
-        td.style.textAlign = "center";
-        return;
-    }
-
-    [...partsSaleItems].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(s => {
-        const tr = salesHistoryListTbody.insertRow();
-        tr.insertCell().textContent = s.id;
-        tr.insertCell().textContent = s.customer || "-";
-        tr.insertCell().textContent = new Date(s.createdAt).toLocaleString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour:'2-digit', minute:'2-digit'});
-
-        const tdItems = tr.insertCell();
-        const ul = document.createElement("ul");
-        ul.className = "detail-list-table";
-        s.items.forEach(item => {
-            const li = document.createElement("li");
-            li.textContent = `${item.name} (x${item.qty}) @ ${item.price.toFixed(2)}`;
-            ul.appendChild(li);
-        });
-        tdItems.appendChild(ul);
-
-        const discountCell = tr.insertCell();
-        discountCell.textContent = (s.discount || 0).toFixed(2);
-        discountCell.className = "text-right";
-
-        const totalCell = tr.insertCell();
-        totalCell.textContent = s.total.toFixed(2);
-        totalCell.className = "text-right";
-
-        const actionTd = tr.insertCell();
-        actionTd.className = "table-actions";
-        const printBtn = document.createElement('button');
-        printBtn.className = "btn-icon info";
-        printBtn.innerHTML = '<i class="fas fa-print"></i>';
-        printBtn.onclick = () => printPartsSaleReceipt(s);
-        actionTd.appendChild(printBtn);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = "btn-icon danger";
-        deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        deleteBtn.onclick = () => deletePartsSaleWithPassword(s.id);
-        actionTd.appendChild(deleteBtn);
-    });
-}
-
-function deletePartsSaleWithPassword(saleId){
-    const pass = prompt("กรุณากรอกรหัสผ่านเพื่อลบรายการขาย:");
-    if (pass === deletePassword) {
-        const index = partsSaleItems.findIndex(s => s.id === saleId);
-        if (index > -1) {
-            partsSaleItems.splice(index, 1);
-            saveData();
-            alert("ลบรายการขายเรียบร้อยแล้ว");
-        }
-    } else if (pass !== null) {
-        alert("รหัสผ่านไม่ถูกต้อง");
-    }
-}
-
-function printPartsSaleReceipt(saleData) {
-    if (!saleData || !saleData.items) {
-        alert("ข้อมูลการขายไม่สมบูรณ์สำหรับพิมพ์");
-        return;
-    }
-    const printAreaEl = document.getElementById("print-area");
-    if (!printAreaEl) {
-        alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์");
-        return;
-    }
-
-    const shopInfo = {
-        name: "ร้านอะไหล่ยนต์ ที.เจ ยนต์",
-        addressLine1: "123/45 ถนนตัวอย่าง",
-        addressLine2: "แขวงสาธิต เขตทดลอง กรุงเทพฯ 10000",
-        phone: "02-000-0000, 080-000-0000",
-        taxId: "0123456789012",
-        logoUrl: "" // "https://via.placeholder.com/150x50?text=LOGO"
-    };
-
-    let itemsHtml = '';
-    let subtotal = 0;
-    saleData.items.forEach((item, index) => {
-        const itemTotal = (parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0);
-        itemsHtml += `
-            <tr>
-                <td style="text-align:center; border:1px solid #ddd; padding:6px; font-size:0.9em;">${index + 1}</td>
-                <td style="border:1px solid #ddd; padding:6px; font-size:0.9em;">${item.name}</td>
-                <td style="text-align:center; border:1px solid #ddd; padding:6px; font-size:0.9em;">${item.qty}</td>
-                <td style="text-align:right; border:1px solid #ddd; padding:6px; font-size:0.9em;">${(parseFloat(item.price) || 0).toFixed(2)}</td>
-                <td style="text-align:right; border:1px solid #ddd; padding:6px; font-size:0.9em;">${itemTotal.toFixed(2)}</td>
-            </tr>
-        `;
-        subtotal += itemTotal;
-    });
-    const discount = parseFloat(saleData.discount || 0);
-    const totalNet = subtotal - discount;
-    const cashReceived = saleData.payment ? parseFloat(saleData.payment.cashReceived || 0) : 0;
-    const changeGiven = saleData.payment ? parseFloat(saleData.payment.changeGiven || 0) : 0;
-
-    const vatRate = 0.07; //  VAT 7% ถ้า totalNet คือยอด *รวม VAT* แล้ว. ถ้าไม่ใช่ 0.00
-    let amountBeforeVat = totalNet;
-    let vatAmount = 0;
-
-    if (vatRate > 0) {
-        amountBeforeVat = totalNet / (1 + vatRate);
-        vatAmount = totalNet - amountBeforeVat;
-    }
-
-
-    const htmlContent = `
-        <div style="font-family: 'Sarabun', Arial, sans-serif; padding: 20px; max-width: 210mm; margin:auto; background:#fff; font-size:10pt;">
-            <table style="width:100%; border-collapse:collapse; margin-bottom:15px;">
-                 <tr>
-                    <td style="width:60%;">
-                        ${shopInfo.logoUrl ? `<img src="${shopInfo.logoUrl}" alt="Logo" style="max-height:40px; margin-bottom:8px;"><br>` : ''}
-                        <strong style="font-size:1.1em;">${shopInfo.name}</strong><br>
-                        <span style="font-size:0.85em;">${shopInfo.addressLine1}</span><br>
-                        <span style="font-size:0.85em;">${shopInfo.addressLine2}</span><br>
-                        <span style="font-size:0.85em;">โทร: ${shopInfo.phone}</span><br>
-                        ${shopInfo.taxId ? `<span style="font-size:0.85em;">เลขประจำตัวผู้เสียภาษี: ${shopInfo.taxId}</span>` : ''}
-                    </td>
-                    <td style="width:40%; text-align:right; vertical-align:top;">
-                        <h2 style="margin:0 0 5px 0; font-size:1.6em;">ใบเสร็จรับเงิน/ใบกำกับภาษีอย่างย่อ</h2>
-                        <p style="margin:5px 0; font-size:0.9em;">เลขที่: <strong>${saleData.id}</strong></p>
-                        <p style="margin:5px 0; font-size:0.9em;">วันที่: ${new Date(saleData.createdAt).toLocaleString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', hour:'2-digit', minute:'2-digit' })}</p>
-                    </td>
-                </tr>
-            </table>
-             <hr style="border:0; border-top:1px solid #ccc; margin:10px 0;">
-            ${saleData.customer ? `
-            <div style="margin-bottom:10px; font-size:0.95em;">
-                <strong>ลูกค้า:</strong> ${saleData.customer}
-            </div>` : ''}
-
-            <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
-                <thead>
-                    <tr style="background-color:#f2f2f2;">
-                        <th style="width:8%; text-align:center; border:1px solid #ccc; padding:6px; font-size:0.9em;">ลำดับ</th>
-                        <th style="width:40%; text-align:left; border:1px solid #ccc; padding:6px; font-size:0.9em;">รายการ</th>
-                        <th style="width:12%; text-align:center; border:1px solid #ccc; padding:6px; font-size:0.9em;">จำนวน</th>
-                        <th style="width:20%; text-align:right; border:1px solid #ccc; padding:6px; font-size:0.9em;">ราคา/หน่วย</th>
-                        <th style="width:20%; text-align:right; border:1px solid #ccc; padding:6px; font-size:0.9em;">รวม (บาท)</th>
-                    </tr>
-                </thead>
-                <tbody>${itemsHtml}</tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="4" style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">รวมเป็นเงิน:</td>
-                        <td style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">${subtotal.toFixed(2)}</td>
-                    </tr>
-                    ${discount > 0 ? `
-                    <tr>
-                        <td colspan="4" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ส่วนลด:</td>
-                        <td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">-${discount.toFixed(2)}</td>
-                    </tr>` : ''}
-                     ${vatRate > 0 ? `
-                    <tr>
-                        <td colspan="4" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ยอดก่อนภาษีมูลค่าเพิ่ม:</td>
-                        <td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">${amountBeforeVat.toFixed(2)}</td>
-                    </tr>
-                     <tr>
-                        <td colspan="4" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ภาษีมูลค่าเพิ่ม ${vatRate*100}%:</td>
-                        <td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">${vatAmount.toFixed(2)}</td>
-                    </tr>` : ''}
-                    <tr style="background-color:#f2f2f2;">
-                        <td colspan="4" style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">ยอดสุทธิที่ต้องชำระ:</td>
-                        <td style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">${totalNet.toFixed(2)}</td>
-                    </tr>
-                    ${saleData.payment ? `
-                    <tr>
-                        <td colspan="4" style="text-align:right; padding:6px; font-size:0.9em;">รับเงินสด:</td>
-                        <td style="text-align:right; padding:6px; font-size:0.9em;">${cashReceived.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" style="text-align:right; padding:6px; font-size:0.9em;">เงินทอน:</td>
-                        <td style="text-align:right; padding:6px; font-size:0.9em;">${changeGiven.toFixed(2)}</td>
-                    </tr>` : ''}
-                </tfoot>
-            </table>
-             <div style="margin-top:30px; font-size:0.9em; display: flex; justify-content: space-between;">
-                <div style="text-align:center;">
-                    <p style="margin-bottom:30px;">&nbsp;</p>
-                    <p>......................................</p>
-                    <p>( ${saleData.customer || 'ผู้ซื้อ/Customer'} )</p>
-                </div>
-                <div style="text-align:center;">
-                    <p style="margin-bottom:30px;">&nbsp;</p>
-                    <p>......................................</p>
-                    <p>( ผู้ขาย/Cashier )</p>
-                    <p>${shopInfo.name}</p>
-                </div>
-            </div>
-            <p style="text-align:center; margin-top:20px; font-size:0.8em; font-style:italic;">ขอบคุณที่ใช้บริการ Thank You</p>
-            ${vatRate > 0 ? `<p style="text-align:center; font-size:0.8em;">ราคาสินค้ารวมภาษีมูลค่าเพิ่มแล้ว / Price includes VAT</p>` : ''}
-        </div>
-    `;
-
-    printAreaEl.innerHTML = htmlContent;
-    printAreaEl.classList.add('active-for-print');
-    window.print();
-    printAreaEl.classList.remove('active-for-print');
-    printAreaEl.innerHTML = '';
-}
-
-// --- STOCK MANAGEMENT SECTION ---
-function refreshStockList() {
-    const stockListTbody = document.getElementById('stock-list-tbody');
-    if (!stockListTbody) return;
-    stockListTbody.innerHTML = "";
-    updateStockItemDatalist();
-    if (stockItems.length === 0) {
-        const tr = stockListTbody.insertRow(); const td = tr.insertCell();
-        td.colSpan = 8; td.style.textAlign = "center"; td.textContent = "ยังไม่มีสินค้าในสต็อก"; return;
-    }
-    [...stockItems].sort((a, b) => (a.name || "").localeCompare(b.name || "", 'th')).forEach(item => {
-        const tr = stockListTbody.insertRow();
-        tr.insertCell().textContent = item.sku || '-';
-        tr.insertCell().textContent = item.name;
-        tr.insertCell().textContent = item.category || '-';
-        const qtyCell = tr.insertCell(); qtyCell.textContent = item.quantity; qtyCell.className = "text-right";
-        if (item.quantity <= (Number(item.reorderPoint) || 0) && item.quantity > 0) { qtyCell.style.color = '#f39c12'; qtyCell.style.fontWeight = 'bold';}
-        else if (item.quantity <= 0) { qtyCell.classList.add('qty-low-stock');}
-
-        const costPCell = tr.insertCell(); costPCell.textContent = (item.costPrice || 0).toFixed(2); costPCell.className = "text-right";
-        costPCell.style.display = document.getElementById('stock-table').querySelector('.col-price[style*="display:none"]') ? "none" : "table-cell";
-
-        const sellPCell = tr.insertCell(); sellPCell.textContent = (item.sellingPrice || 0).toFixed(2); sellPCell.className = "text-right";
-        const reorderCell = tr.insertCell(); reorderCell.textContent = item.reorderPoint || 0; reorderCell.className = "text-right";
-
-        const actionTd = tr.insertCell(); actionTd.className = "table-actions";
-        const editBtn = document.createElement('button');
-        editBtn.className = "btn-icon warning"; editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-        editBtn.setAttribute("aria-label", "แก้ไขสต็อก");
-        editBtn.onclick = () => populateStockFormForEdit(item.id);
-        actionTd.appendChild(editBtn);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = "btn-icon danger"; deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        deleteBtn.setAttribute("aria-label", "ลบสต็อก");
-        deleteBtn.onclick = () => deleteStockItemWithPassword(item.id);
-        actionTd.appendChild(deleteBtn);
-    });
-}
-
-function updateStockItemDatalist() {
-    const stockItemNamesDatalist = document.getElementById("stock-item-names-datalist");
-    if (!stockItemNamesDatalist) return;
-    stockItemNamesDatalist.innerHTML = "";
-    stockItems.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.name;
-        stockItemNamesDatalist.appendChild(option);
-    });
-}
-
-function populateStockFormForEdit(itemId) {
-    const stockForm = document.getElementById('stock-form');
-    const stockItemIdInput = document.getElementById('stock-item-id-input');
-    const stockItemSkuInput = document.getElementById('stock-item-sku-input');
-    const stockItemNameInput = document.getElementById('stock-item-name-input');
-    const stockItemCategoryInput = document.getElementById('stock-item-category-input');
-    const stockItemQuantityInput = document.getElementById('stock-item-quantity-input');
-    const stockItemCostPriceInput = document.getElementById('stock-item-cost-price-input');
-    const stockItemSellingPriceInput = document.getElementById('stock-item-selling-price-input');
-    const stockItemReorderPointInput = document.getElementById('stock-item-reorder-point-input');
-    const stockItemNotesInput = document.getElementById('stock-item-notes-input');
-    const stockSubmitBtn = document.getElementById('stock-submit-btn');
-    const stockCancelEditBtn = document.getElementById('stock-cancel-edit-btn');
-
-    const item = stockItems.find(i => i.id === itemId);
-    if (item) {
-        stockItemIdInput.value = item.id;
-        stockItemSkuInput.value = item.sku || '';
-        stockItemNameInput.value = item.name;
-        stockItemCategoryInput.value = item.category || '';
-        stockItemQuantityInput.value = item.quantity;
-        stockItemCostPriceInput.value = (item.costPrice || 0).toFixed(2);
-        stockItemSellingPriceInput.value = (item.sellingPrice || 0).toFixed(2);
-        stockItemReorderPointInput.value = item.reorderPoint || 0;
-        stockItemNotesInput.value = item.notes || '';
-        stockSubmitBtn.textContent = "บันทึกการแก้ไขสินค้า";
-        stockCancelEditBtn.style.display = "inline-block";
-        stockItemNameInput.focus();
-        window.scrollTo(0, stockForm.offsetTop - 70);
-    }
-}
-
-function deleteStockItemWithPassword(itemId){
-    const pass = prompt("กรุณากรอกรหัสผ่านเพื่อลบสินค้า:");
-    if (pass === deletePassword) {
-        const index = stockItems.findIndex(item => item.id === itemId);
-        if (index > -1) {
-            stockItems.splice(index, 1);
-            saveData();
-            alert("ลบสินค้าเรียบร้อย");
-        }
-    } else if (pass !== null) {
-        alert("รหัสผ่านไม่ถูกต้อง");
-    }
-}
-
-function printStockTable() {
-    const printAreaEl = document.getElementById("print-area");
-    if (!printAreaEl) {
-        alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์");
-        return;
-    }
-    const shopInfo = {
-        name: "อู่ซ่อมรถยนต์ ที.เจ ยนต์"
-    };
-
-    let itemsHtml = '';
-    // จัดเรียง stockItems ตามชื่อสินค้าก่อนพิมพ์
-    const sortedStockItems = [...stockItems].sort((a, b) => (a.name || "").localeCompare(b.name || "", 'th'));
-
-    if (sortedStockItems.length > 0) {
-        sortedStockItems.forEach((item, index) => {
-            itemsHtml += `
-                <tr>
-                    <td style="border:1px solid #ccc; padding:5px; text-align:center;">${index + 1}</td>
-                    <td style="border:1px solid #ccc; padding:5px;">${item.sku || '-'}</td>
-                    <td style="border:1px solid #ccc; padding:5px;">${item.name}</td>
-                    <td style="border:1px solid #ccc; padding:5px;">${item.category || '-'}</td>
-                    <td style="border:1px solid #ccc; padding:5px; text-align:right;">${item.quantity}</td>
-                    <td style="border:1px solid #ccc; padding:5px; text-align:right;">${(item.sellingPrice || 0).toFixed(2)}</td>
-                    <td style="border:1px solid #ccc; padding:5px; text-align:right;">${item.reorderPoint || 0}</td>
-                </tr>
-            `;
-        });
-    } else {
-        itemsHtml = '<tr><td colspan="7" style="text-align:center; padding:10px; border:1px solid #ccc;">ไม่มีสินค้าในสต็อก</td></tr>';
-    }
-
-    const htmlContent = `
-        <div style="font-family: 'Sarabun', Arial, sans-serif; padding:0; max-width:210mm; margin:auto; background:#fff; font-size:10pt;">
-            <div style="text-align:center; margin-bottom:15px;">
-                <h2 style="margin:0 0 5px 0; font-size:1.4em;">รายงานสต็อกสินค้า</h2>
-                <h3 style="margin:0 0 5px 0; font-size:1.1em;">${shopInfo.name}</h3>
-                <p style="margin:5px 0; font-size:0.9em;">ข้อมูล ณ วันที่: ${new Date().toLocaleString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', hour:'2-digit', minute:'2-digit' })}</p>
-            </div>
-            <table style="width:100%; border-collapse:collapse; font-size:0.9em;">
-                <thead>
-                    <tr style="background-color:#f2f2f2; font-weight:bold;">
-                        <th style="border:1px solid #ccc; padding:6px; width:5%;">#</th>
-                        <th style="border:1px solid #ccc; padding:6px; width:15%;">SKU</th>
-                        <th style="border:1px solid #ccc; padding:6px; width:30%;">ชื่อสินค้า</th>
-                        <th style="border:1px solid #ccc; padding:6px; width:15%;">หมวดหมู่</th>
-                        <th style="border:1px solid #ccc; padding:6px; width:10%; text-align:right;">จำนวน</th>
-                        <th style="border:1px solid #ccc; padding:6px; width:15%; text-align:right;">ราคาขาย</th>
-                        <th style="border:1px solid #ccc; padding:6px; width:10%; text-align:right;">จุดสั่งซื้อ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${itemsHtml}
-                </tbody>
-            </table>
-            <p style="text-align:right; margin-top:15px; font-size:0.8em;">รวม ${sortedStockItems.length} รายการ</p>
-        </div>
-    `;
-    printAreaEl.innerHTML = htmlContent;
-    printAreaEl.classList.add('active-for-print');
-    
-    window.print();
-    
-    printAreaEl.classList.remove('active-for-print');
-    printAreaEl.innerHTML = '';
-}
-
-
-// --- DASHBOARD ---
-function updateDashboardStats() {
-    const el = (id) => document.getElementById(id);
-    const dashboardLastUpdated = el("dashboard-last-updated");
-    if (dashboardLastUpdated) dashboardLastUpdated.textContent = new Date().toLocaleString('th-TH', { dateStyle:'medium', timeStyle:'short'});
-
-    let totalRevenue = 0;
-    let revenueFromWorkorders = 0;
-    workorders.forEach(wo => {
-        if(wo.status === "ซ่อมเสร็จแล้ว" && wo.quote && typeof wo.quote.total === 'number') {
-            revenueFromWorkorders += wo.quote.total;
-        }
-    });
-
-    let revenueFromPartsSales = 0;
-    partsSaleItems.forEach(ps => {
-        if(typeof ps.total === 'number') {
-            revenueFromPartsSales += ps.total;
-        }
-    });
-    totalRevenue = revenueFromWorkorders + revenueFromPartsSales;
-
-    if(el("stats-overall-revenue")) el("stats-overall-revenue").textContent = totalRevenue.toFixed(2);
-    if(el("stats-revenue-workorders")) el("stats-revenue-workorders").textContent = revenueFromWorkorders.toFixed(2);
-    if(el("stats-revenue-parts-sales")) el("stats-revenue-parts-sales").textContent = revenueFromPartsSales.toFixed(2);
-
-    if(el("stats-total-quotes")) el("stats-total-quotes").textContent = quotes.length;
-    if(el("stats-total-workorders")) el("stats-total-workorders").textContent = workorders.length;
-    if(el("stats-total-parts-sales")) el("stats-total-parts-sales").textContent = partsSaleItems.length;
-    if(el("stats-total-transactions")) el("stats-total-transactions").textContent = quotes.length + workorders.length + partsSaleItems.length;
-
-    const woPending = workorders.filter(w => w.status === 'รับเข้าซ่อม').length;
-    const woInProgress = workorders.filter(w => w.status === 'ระหว่างซ่อม').length;
-    const woCompleted = workorders.filter(w => w.status === 'ซ่อมเสร็จแล้ว').length;
-    const totalWOForChart = woPending + woInProgress + woCompleted || 1;
-
-    if(el("stats-wo-pending")) el("stats-wo-pending").textContent = woPending;
-    if(el("stats-wo-in-progress")) el("stats-wo-in-progress").textContent = woInProgress;
-    if(el("stats-wo-completed")) el("stats-wo-completed").textContent = woCompleted;
-
-    if(el("bar-wo-pending")) el("bar-wo-pending").style.height = `${(woPending / totalWOForChart) * 100}%`;
-    if(el("bar-wo-in-progress")) el("bar-wo-in-progress").style.height = `${(woInProgress / totalWOForChart) * 100}%`;
-    if(el("bar-wo-completed-stats")) el("bar-wo-completed-stats").style.height = `${(woCompleted / totalWOForChart) * 100}%`;
-
-    const lowStockList = el("low-stock-list");
-    const lowStockEmptyMsg = el("low-stock-summary-list")?.querySelector("p.empty-message");
-    if(lowStockList) {
-        lowStockList.innerHTML = '';
-        const itemsNearEmpty = stockItems
-            .filter(item => item.quantity <= (Number(item.reorderPoint) || 0))
-            .sort((a,b) => a.quantity - b.quantity)
-            .slice(0, 5);
-
-        if (itemsNearEmpty.length > 0) {
-            itemsNearEmpty.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span class="item-name">${item.name}</span> <span class="item-qty">${item.quantity} ชิ้น</span>`;
-                lowStockList.appendChild(li);
-            });
-            if(lowStockEmptyMsg) lowStockEmptyMsg.style.display = 'none';
-        } else {
-            if(lowStockEmptyMsg) lowStockEmptyMsg.style.display = 'block';
-        }
-    }
-
-    // สร้างข้อมูลสำหรับกราฟยอดขายรายเดือน
-    const monthlySalesData = {};
-    workorders.forEach(wo => {
-        if(wo.status === "ซ่อมเสร็จแล้ว" && wo.quote && typeof wo.quote.total === 'number') {
-            const monthYear = new Date(wo.receivedAt).toLocaleString('th-TH', { month: 'short', year: '2-digit' });
-            monthlySalesData[monthYear] = (monthlySalesData[monthYear] || 0) + wo.quote.total;
-        }
-    });
-    partsSaleItems.forEach(ps => {
-         const monthYear = new Date(ps.createdAt).toLocaleString('th-TH', { month: 'short', year: '2-digit' });
-            monthlySalesData[monthYear] = (monthlySalesData[monthYear] || 0) + ps.total;
-    });
-
-    // สร้างแท่งกราฟ
-    const chartContainer = document.getElementById('monthly-sales-chart')?.querySelector('.bar-chart');
-    if (chartContainer) {
-        chartContainer.innerHTML = ''; // เคลียร์กราฟเดิม
-        const months = Object.keys(monthlySalesData);
-        months.sort((a, b) => { // เรียงลำดับเดือน
-            const [monthA, yearA] = a.split(' ');
-            const [monthB, yearB] = b.split(' ');
-            const dateA = new Date(`20${yearA}-${getMonthNumber(monthA)}-01`);
-            const dateB = new Date(`20${yearB}-${getMonthNumber(monthB)}-01`);
-            return dateA - dateB;
-        });
-
-        let maxSales = Math.max(...Object.values(monthlySalesData));
-        maxSales = maxSales + (maxSales * 0.2); // เพิ่มพื้นที่ด้านบนกราฟเล็กน้อย
-
-        months.forEach(month => {
-            const sales = monthlySalesData[month];
-            const barHeight = (sales / maxSales) * 100;
-
-            const barItem = document.createElement('div');
-            barItem.className = 'bar-item';
-
-            const bar = document.createElement('div');
-            bar.className = 'bar';
-            bar.style.height = `${barHeight}%`;
-            bar.style.backgroundColor = '#3498db'; // สีของแท่งกราฟ
-            barItem.appendChild(bar);
-
-            const barLabel = document.createElement('div');
-            barLabel.className = 'bar-label';
-            barLabel.textContent = `${month} (${sales.toFixed(0)})`;
-            barItem.appendChild(barLabel);
-
-            chartContainer.appendChild(barItem);
         });
     }
-}
-
-function getMonthNumber(monthName) {
-    const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-    const monthIndex = monthNames.indexOf(monthName);
-    return monthIndex + 1;
-}
-
-// --- NAVIGATION ---
-function switchAppSection(sectionIdToShow) {
-    document.querySelectorAll('.app-section').forEach(section => section.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-
-    const targetSection = document.getElementById(sectionIdToShow);
-    const targetNavItem = document.querySelector(`.nav-item[data-section-id="${sectionIdToShow}"]`);
-
-    if (targetSection && targetNavItem) {
-        targetSection.classList.add('active');
-        targetNavItem.classList.add('active');
-
-        if (sectionIdToShow === 'dashboard-section') {
-            updateDashboardStats();
-        } else if (sectionIdToShow === 'quote-section') {
-            refreshQuoteSelect();
-            const quoteItemsContainer = document.getElementById("quote-items-container");
-            if(quoteItemsContainer && quoteItemsContainer.children.length === 0) {
-                quoteItemsContainer.appendChild(createQuoteItemInput());
-            }
-            recalcQuoteTotal();
-        } else if (sectionIdToShow === 'workorder-section') {
-            refreshQuoteSelect();
-            refreshWorkorderList();
-        } else if (sectionIdToShow === 'parts-sale-section') {
-            refreshPartsSalesHistoryList();
-            updateStockItemDatalist();
-            const partsItemsContainer = document.getElementById("parts-items-container");
-            if(partsItemsContainer && partsItemsContainer.children.length === 0) {
-                partsItemsContainer.appendChild(createPartItemInput());
-            }
-            recalcPartsTotal();
-        } else if (sectionIdToShow === 'stock-section') {
-            refreshStockList();
+    function togglePromoAdminMode() {
+        promoAdminMode = !promoAdminMode;
+        const promoAdminIcon = document.getElementById('promo-admin-icon');
+        if (promoAdminIcon) {
+            promoAdminIcon.style.backgroundColor = promoAdminMode ? '#2ecc71' : '#e74c3c';
+            promoAdminIcon.textContent = promoAdminMode ? '✔️' : '\uD83D\uDCE3';
         }
         renderAllPromoCarousels();
-    } else {
-        console.warn(`Section or NavItem not found for: ${sectionIdToShow}`);
     }
-}
 
-// --- DOMContentLoaded: Main entry point ---
-document.addEventListener('DOMContentLoaded', () => {
-    const currentYearEl = document.getElementById('current-year');
-    if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
-
-    loadPromoImages();
-
-    const promoAdminIcon = document.getElementById('promo-admin-icon');
-    if (promoAdminIcon) promoAdminIcon.onclick = togglePromoAdminMode;
-
-    // DOM Element references
-    const quoteForm = document.getElementById("quote-form");
-    const quoteCustomerInput = document.getElementById("quote-customer");
-    const quotePhoneInput = document.getElementById("quote-phone");
-    const quoteCarInfoInput = document.getElementById("quote-car-info");
-    const quoteItemsContainer = document.getElementById("quote-items-container");
-    const btnAddQuoteItem = document.getElementById("add-quote-item");
-    const quoteDiscountInput = document.getElementById("quote-discount");
-
-    const workorderForm = document.getElementById("workorder-form");
-    const selectQuoteForWorkorder = document.getElementById("select-quote-for-workorder");
-    const workorderNoteInput = document.getElementById("workorder-note");
-
-    const partsSaleForm = document.getElementById("parts-sale-form");
-    const partsCustomerInput = document.getElementById("parts-customer");
-    const partsItemsContainer = document.getElementById("parts-items-container");
-    const btnAddPartItem = document.getElementById("add-part-item");
-    const partsDiscountInput = document.getElementById("parts-discount");
-    const cashReceiptDiv = document.getElementById("cash-receipt");
-    const cashReceivedInputEl = document.getElementById("cash-received");
-    const cashChangeSpanEl = document.getElementById("cash-change");
-    const finalizePaymentBtn = document.getElementById("finalize-payment");
-
-    const stockForm = document.getElementById('stock-form');
-    const stockItemIdInput = document.getElementById('stock-item-id-input');
-    const stockItemSkuInput = document.getElementById('stock-item-sku-input');
-    const stockItemNameInput = document.getElementById('stock-item-name-input');
-    const stockItemCategoryInput = document.getElementById('stock-item-category-input');
-    const stockItemQuantityInput = document.getElementById('stock-item-quantity-input');
-    const stockItemCostPriceInput = document.getElementById('stock-item-cost-price-input');
-    const stockItemSellingPriceInput = document.getElementById('stock-item-selling-price-input');
-    const stockItemReorderPointInput = document.getElementById('stock-item-reorder-point-input');
-    const stockItemNotesInput = document.getElementById('stock-item-notes-input');
-    const stockSubmitBtn = document.getElementById('stock-submit-btn');
-    const stockCancelEditBtn = document.getElementById('stock-cancel-edit-btn');
-    const printStockTableBtn = document.getElementById('print-stock-table-btn');
-
-    // Event Listeners
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const sectionId = item.getAttribute('data-section-id');
-            if (sectionId) {
-                switchAppSection(sectionId);
-            }
-        });
-    });
-
-    if (btnAddQuoteItem) {
-        btnAddQuoteItem.addEventListener("click", () => {
-            if (quoteItemsContainer) {
-                const newItem = createQuoteItemInput();
-                quoteItemsContainer.appendChild(newItem);
-                const firstInput = newItem.querySelector('.item-name-input');
-                if (firstInput) firstInput.focus();
-            }
-            recalcQuoteTotal();
-        });
+    // --- DATA HANDLING ---
+    function loadData() {
+        const loadItem = (key, defaultValue = []) => {
+            try {
+                const storedValue = localStorage.getItem(key);
+                const parsed = storedValue ? JSON.parse(storedValue) : defaultValue;
+                return Array.isArray(parsed) ? parsed : defaultValue;
+            } catch (e) { console.error(`Error loading ${key}:`, e); return defaultValue; }
+        };
+        quotes = loadItem('quotes_v2.2_merged');
+        workorders = loadItem('workorders_v2.2_merged');
+        partsSaleItems = loadItem('partsSaleItems_v2.2_merged');
+        stockItems = loadItem('stockItems_v2.2_merged');
+        stockItems = stockItems.filter(item => typeof item === 'object' && item !== null && item.name).map(item => ({
+            ...item,
+            quantity: Number(item.quantity) || 0, costPrice: Number(item.costPrice) || 0,
+            sellingPrice: Number(item.sellingPrice) || 0, reorderPoint: Number(item.reorderPoint) || 0,
+        }));
     }
-    if (quoteDiscountInput) quoteDiscountInput.addEventListener("input", recalcQuoteTotal);
-    if (quoteForm) {
-        quoteForm.addEventListener("submit", e => {
-            e.preventDefault();
-            const customer = quoteCustomerInput.value.trim();
-            const phone = quotePhoneInput.value.trim();
-            const carInfo = quoteCarInfoInput.value.trim();
-            if (!customer || !carInfo) { alert("กรุณากรอกชื่อลูกค้าและข้อมูลรถยนต์"); return; }
-            const items = [];
+    function saveData() {
+        try {
+            localStorage.setItem('quotes_v2.2_merged', JSON.stringify(quotes));
+            localStorage.setItem('workorders_v2.2_merged', JSON.stringify(workorders));
+            localStorage.setItem('partsSaleItems_v2.2_merged', JSON.stringify(partsSaleItems));
+            localStorage.setItem('stockItems_v2.2_merged', JSON.stringify(stockItems));
+        } catch (e) { console.error("Error saving data:", e); alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล!"); }
+        updateDashboardStats();
+        refreshQuoteSelect();
+        refreshWorkorderList();
+        refreshPartsSalesHistoryList();
+        refreshStockList();
+        updateStockItemDatalist();
+    }
+    function generateId(prefix) {
+        const now = new Date();
+        return prefix + now.getFullYear().toString().slice(-2) +
+            (now.getMonth() + 1).toString().padStart(2, '0') +
+            now.getDate().toString().padStart(2, '0') +
+            Math.floor(Math.random() * 9000 + 1000);
+    }
+
+    // --- QUOTE SECTION ---
+    function createQuoteItemInput(name = '', price = 0) {
+        const div = document.createElement("div"); div.className = "form-line-item";
+        const inputName = document.createElement("input");
+        inputName.type = "text"; inputName.placeholder = "ชื่อบริการ / อะไหล่"; inputName.required = true;
+        inputName.value = name; inputName.className = "form-input item-name-input";
+        const inputPrice = document.createElement("input");
+        inputPrice.type = "number"; inputPrice.min = "0"; inputPrice.step = "0.01";
+        inputPrice.placeholder = "ราคา"; inputPrice.required = true;
+        inputPrice.value = price > 0 ? price.toFixed(2) : ''; inputPrice.className = "form-input item-price-input";
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button"; removeBtn.className = "btn-icon danger remove-line-item";
+        removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeBtn.onclick = () => { div.remove(); recalcQuoteTotal(); };
+        inputPrice.oninput = recalcQuoteTotal; inputName.onblur = recalcQuoteTotal;
+        div.appendChild(inputName); div.appendChild(inputPrice); div.appendChild(removeBtn);
+        return div;
+    }
+    function recalcQuoteTotal() {
+        const quoteItemsContainer = document.getElementById("quote-items-container");
+        const quoteTotalSpan = document.getElementById("quote-total");
+        const quoteDiscountInput = document.getElementById("quote-discount");
+        if (!quoteItemsContainer || !quoteTotalSpan || !quoteDiscountInput) return;
+        let currentTotal = 0;
+        Array.from(quoteItemsContainer.children).forEach(child => {
+            const priceInput = child.querySelector('.item-price-input');
+            if (priceInput && priceInput.value) currentTotal += parseFloat(priceInput.value) || 0;
+        });
+        const discount = parseFloat(quoteDiscountInput.value) || 0;
+        const finalTotal = Math.max(0, currentTotal - discount);
+        quoteTotalSpan.textContent = finalTotal.toFixed(2);
+    }
+    function refreshQuoteSelect() {
+        const selectQuoteForWorkorder = document.getElementById("select-quote-for-workorder");
+        if (!selectQuoteForWorkorder) return;
+        const previouslySelectedQuoteId = selectQuoteForWorkorder.value;
+        selectQuoteForWorkorder.innerHTML = '<option value="">-- เลือกใบเสนอราคา --</option>';
+        const usedQuoteIds = new Set(workorders.map(wo => wo.quote && wo.quote.id).filter(id => id));
+        const availableQuotes = quotes.filter(q => !usedQuoteIds.has(q.id))
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        availableQuotes.forEach(q => {
+            const option = document.createElement("option");
+            option.value = q.id;
+            option.textContent = `${q.id} | ${q.customer} (${q.carInfo || 'N/A'}) | ${q.total.toFixed(2)} บ.`;
+            selectQuoteForWorkorder.appendChild(option);
+        });
+        if (availableQuotes.some(q => q.id === previouslySelectedQuoteId)) {
+            selectQuoteForWorkorder.value = previouslySelectedQuoteId;
+        }
+    }
+    function printQuote(quote) {
+        if (!quote || !quote.items) { alert("ไม่สามารถพิมพ์ใบเสนอราคาได้: ข้อมูลไม่ถูกต้อง"); return; }
+        const printAreaEl = document.getElementById("print-area");
+        if (!printAreaEl) { alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์"); return; }
+        const shopInfo = { name: "อู่ซ่อมรถยนต์ ที.เจ ยนต์", addressLine1: "เลขที่ 295 หมู่ที่ 8", addressLine2: "ตำบลศิลา อำเภอเมือง จังหวัดขอนแก่น 40000", phone: "094 2919 825", taxId: "", logoUrl: "" };
+        let itemsHtml = ''; let subtotal = 0;
+        quote.items.forEach((item, index) => {
+            const itemPrice = parseFloat(item.price) || 0;
+            itemsHtml += `<tr><td style="text-align:center; border:1px solid #ccc; padding:5px;">${index + 1}</td><td style="border:1px solid #ccc; padding:5px;">${item.name || 'N/A'}</td><td style="text-align:right; border:1px solid #ccc; padding:5px;">${itemPrice.toFixed(2)}</td></tr>`;
+            subtotal += itemPrice;
+        });
+        const discountAmount = parseFloat(quote.discount) || 0; const grandTotal = subtotal - discountAmount;
+        const vatRate = 0.00; const vatAmount = vatRate > 0 ? grandTotal * vatRate : 0; const totalWithVat = grandTotal + vatAmount;
+        const html = `
+            <div style="font-family: 'Sarabun', Arial, sans-serif; font-size: 10pt; color: #000; background: #fff; padding: 20px; max-width: 210mm; margin:auto;">
+            <table style="width:100%; border-collapse:collapse; margin-bottom:15px;"><tr>
+            <td style="width:60%;">${shopInfo.logoUrl ? `<img src="${shopInfo.logoUrl}" alt="Logo" style="max-height:50px; margin-bottom:10px;"><br>` : ''}<strong style="font-size:1.2em;">${shopInfo.name}</strong><br><span style="font-size:0.9em;">${shopInfo.addressLine1}</span><br><span style="font-size:0.9em;">${shopInfo.addressLine2}</span><br><span style="font-size:0.9em;">โทร: ${shopInfo.phone}</span><br>${shopInfo.taxId ? `<span style="font-size:0.9em;">เลขประจำตัวผู้เสียภาษี: ${shopInfo.taxId}</span>` : ''}</td>
+            <td style="width:40%; text-align:right; vertical-align:top;"><h1 style="margin:0; font-size:1.8em; color:#333;">ใบเสนอราคา</h1><p style="margin:5px 0;"><strong>เลขที่:</strong> ${quote.id || 'N/A'}</p><p style="margin:5px 0;"><strong>วันที่:</strong> ${new Date(quote.createdAt || Date.now()).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</p></td>
+            </tr></table><hr style="border:0; border-top:1px solid #ccc; margin:15px 0;">
+            <table style="width:100%; margin-bottom:10px; font-size:0.95em;">
+            <tr><td style="width:15%; vertical-align:top;"><strong>ลูกค้า:</strong></td><td style="width:85%;">${quote.customer || 'N/A'}</td></tr>
+            <tr><td style="vertical-align:top;"><strong>โทรศัพท์:</strong></td><td>${quote.phone || '-'}</td></tr>
+            <tr><td style="vertical-align:top;"><strong>ข้อมูลรถ:</strong></td><td>${quote.carInfo || 'N/A'}</td></tr>
+            </table><table style="width:100%; border-collapse:collapse; font-size:0.9em; margin-top:15px;"><thead><tr style="background-color:#f0f0f0; font-weight:bold;"><th style="width:10%; text-align:center; border:1px solid #ccc; padding:6px;">ลำดับ</th><th style="width:60%; text-align:left; border:1px solid #ccc; padding:6px;">รายการ</th><th style="width:30%; text-align:right; border:1px solid #ccc; padding:6px;">จำนวนเงิน (บาท)</th></tr></thead><tbody>${itemsHtml}</tbody>
+            <tfoot><tr><td colspan="2" style="text-align:right; font-weight:bold; border-top:1px solid #ccc; padding:5px;">รวมเป็นเงิน:</td><td style="text-align:right; font-weight:bold; border-top:1px solid #ccc; padding:5px;">${subtotal.toFixed(2)}</td></tr>
+            ${discountAmount > 0 ? `<tr><td colspan="2" style="text-align:right; font-weight:bold; padding:5px;">ส่วนลด:</td><td style="text-align:right; font-weight:bold; padding:5px;">-${discountAmount.toFixed(2)}</td></tr><tr><td colspan="2" style="text-align:right; font-weight:bold; padding:5px;">ยอดหลังหักส่วนลด:</td><td style="text-align:right; font-weight:bold; padding:5px;">${grandTotal.toFixed(2)}</td></tr>` : ''}
+            ${vatAmount > 0 ? `<tr><td colspan="2" style="text-align:right; font-weight:bold; padding:5px;">ภาษีมูลค่าเพิ่ม ${vatRate*100}%:</td><td style="text-align:right; font-weight:bold; padding:5px;">${vatAmount.toFixed(2)}</td></tr>` : ''}
+            <tr style="background-color:#f0f0f0;"><td colspan="2" style="text-align:right; font-weight:bold; font-size:1.1em; padding:8px;">ยอดรวมสุทธิ:</td><td style="text-align:right; font-weight:bold; font-size:1.1em; padding:8px;">${(vatAmount > 0 ? totalWithVat : grandTotal).toFixed(2)}</td></tr>
+            </tfoot></table><div style="margin-top:25px; font-size:0.85em;"><p><strong>หมายเหตุ:</strong></p><ul style="padding-left:20px; margin-top:5px;">${vatAmount === 0 ? '<li>ราคานี้ยังไม่รวมภาษีมูลค่าเพิ่ม</li>' : '<li>ราคานี้รวมภาษีมูลค่าเพิ่มแล้ว</li>'}<li>ใบเสนอราคานี้มีผลบังคับใช้ 30 วัน นับจากวันที่ออก</li><li>การรับประกันงานซ่อมเป็นไปตามเงื่อนไขของอู่</li></ul></div>
+            <table style="width:100%; margin-top:50px; font-size:0.9em;"><tr><td style="width:50%; text-align:center; padding-top:40px;"><p>....................................................</p><p>(ลูกค้า)</p></td><td style="width:50%; text-align:center; padding-top:40px;"><p>....................................................</p><p>(ผู้อนุมัติ)</p><p>${shopInfo.name}</p></td></tr></table>
+            <p style="text-align:center; margin-top:20px; font-size:0.8em;"><i>ขอขอบคุณที่ให้ความไว้วางใจใช้บริการ</i></p></div>`;
+        printAreaEl.innerHTML = html; printAreaEl.classList.add('active-for-print');
+        window.print();
+        printAreaEl.classList.remove('active-for-print'); printAreaEl.innerHTML = '';
+    }
+
+    // --- WORKORDER SECTION ---
+    function refreshWorkorderList() {
+        const workorderListTbody = document.getElementById("workorder-list");
+        const workorderPagination = document.getElementById("workorder-pagination");
+        if (!workorderListTbody || !workorderPagination) return;
+        workorderListTbody.innerHTML = "";
+        
+        const statusOrder = {"รับเข้าซ่อม": 1, "ระหว่างซ่อม": 2, "ซ่อมเสร็จแล้ว": 3};
+        const sortedWorkorders = [...workorders].sort((a,b) => 
+              (statusOrder[a.status] - statusOrder[b.status]) || (new Date(b.receivedAt) - new Date(a.receivedAt))
+        );
+        const totalPages = Math.ceil(sortedWorkorders.length / workorderItemsPerPage);
+        
+        if (sortedWorkorders.length === 0) {
+            const tr = workorderListTbody.insertRow();
+            const td = tr.insertCell();
+            td.colSpan = 9;
+            td.style.textAlign = "center";
+            td.textContent = "ยังไม่มีรถเข้าซ่อม";
+        } else {
+            if (currentWorkorderPage > totalPages) currentWorkorderPage = totalPages;
+            if (currentWorkorderPage < 1) currentWorkorderPage = 1;
+            const start = (currentWorkorderPage - 1) * workorderItemsPerPage;
+            const paginatedData = sortedWorkorders.slice(start, start + workorderItemsPerPage);
+            paginatedData.forEach(w => {
+                // --- ใส่โค้ดที่สร้าง row สำหรับ workorder นี้ (คัดลอกโค้ดเดิม) ---
+                const tr = workorderListTbody.insertRow();
+                tr.insertCell().textContent = w.id || 'N/A';
+                tr.insertCell().textContent = w.quote.customer || 'N/A';
+                tr.insertCell().textContent = w.quote.phone || '-';
+                tr.insertCell().textContent = w.quote.carInfo || 'N/A';
+                tr.insertCell().textContent = new Date(w.receivedAt || Date.now())
+                            .toLocaleString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour:'2-digit', minute:'2-digit' });
+                const tdDetails = tr.insertCell();
+                const ul = document.createElement("ul");
+                ul.className = "detail-list-table";
+                if (w.quote.items && Array.isArray(w.quote.items)) {
+                    w.quote.items.forEach(item => {
+                        const li = document.createElement("li");
+                        li.textContent = `${item.name || 'N/A'} (${(parseFloat(item.price) || 0).toFixed(2)})`;
+                        ul.appendChild(li);
+                    });
+                    if (w.quote.discount > 0) {
+                        const liDisc = document.createElement("li");
+                        liDisc.style.fontWeight = "bold";
+                        liDisc.textContent = `ส่วนลด: ${(parseFloat(w.quote.discount) || 0).toFixed(2)}`;
+                        ul.appendChild(liDisc);
+                    }
+                } else { ul.textContent = "-"; }
+                tdDetails.appendChild(ul);
+                const tdPrice = tr.insertCell();
+                tdPrice.className = "text-right";
+                tdPrice.textContent = (parseFloat(w.quote.total) || 0).toFixed(2);
+                const tdStatus = tr.insertCell();
+                const selectStatus = document.createElement("select");
+                selectStatus.className = `form-input status-select-visual status-${(w.status || 'รับเข้าซ่อม').replace(/\s+/g, '-')}`;
+                selectStatus.dataset.workorderId = w.id;
+                ["รับเข้าซ่อม", "ระหว่างซ่อม", "ซ่อมเสร็จแล้ว"].forEach(status => {
+                    const option = document.createElement("option");
+                    option.value = status;
+                    option.textContent = status;
+                    if (w.status === status) option.selected = true;
+                    selectStatus.appendChild(option);
+                });
+                selectStatus.onchange = () => {
+                    const selectedWO = workorders.find(wo => wo.id === w.id);
+                    if(selectedWO) {
+                        selectedWO.status = selectStatus.value;
+                        selectedWO.updatedAt = new Date().toISOString();
+                        selectStatus.className = `form-input status-select-visual status-${selectStatus.value.replace(/\s+/g, '-')}`;
+                        saveData();
+                    }
+                };
+                tdStatus.appendChild(selectStatus);
+                const tdAction = tr.insertCell();
+                tdAction.className = "table-actions";
+                const btnPrintWorkOrder = document.createElement("button");
+                btnPrintWorkOrder.className = "btn-icon info";
+                btnPrintWorkOrder.innerHTML = '<i class="fas fa-print"></i>';
+                btnPrintWorkOrder.setAttribute("aria-label", "พิมพ์ใบงาน");
+                btnPrintWorkOrder.onclick = () => printWorkOrderCard(w);
+                const btnDel = document.createElement("button");
+                btnDel.className = "btn-icon danger";
+                btnDel.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                btnDel.setAttribute("aria-label", "ลบใบงาน");
+                btnDel.onclick = () => deleteWorkorderWithPassword(w.id);
+                tdAction.appendChild(btnPrintWorkOrder);
+                tdAction.appendChild(btnDel);
+            });
+        }
+        
+        // สร้างปุ่มควบคุมการแบ่งหน้า
+        workorderPagination.innerHTML = "";
+        if (totalPages > 1) {
+            const prevBtn = document.createElement("button");
+            prevBtn.textContent = "Prev";
+            prevBtn.onclick = () => {
+                if(currentWorkorderPage > 1) { currentWorkorderPage--; refreshWorkorderList(); }
+            };
+            workorderPagination.appendChild(prevBtn);
+            const pageInfo = document.createElement("span");
+            pageInfo.textContent = ` Page ${currentWorkorderPage} of ${totalPages} `;
+            workorderPagination.appendChild(pageInfo);
+            const nextBtn = document.createElement("button");
+            nextBtn.textContent = "Next";
+            nextBtn.onclick = () => {
+                if(currentWorkorderPage < totalPages) { currentWorkorderPage++; refreshWorkorderList(); }
+            };
+            workorderPagination.appendChild(nextBtn);
+        }
+    }
+
+    function deleteWorkorderWithPassword(workorderId) {
+        const pass = prompt("กรุณากรอกรหัสผ่านเพื่อลบใบรับรถ:");
+        if (pass === deletePassword) {
+            const index = workorders.findIndex(w => w.id === workorderId);
+            if (index > -1) { workorders.splice(index, 1); saveData(); alert("ลบใบรับรถเรียบร้อยแล้ว"); }
+        } else if (pass !== null) { alert("รหัสผ่านไม่ถูกต้อง"); }
+    }
+    function printWorkOrderCard(workOrder) {
+        if (!workOrder || !workOrder.quote || !workOrder.quote.items) { alert("ข้อมูลใบงานไม่สมบูรณ์สำหรับพิมพ์"); return; }
+        const printAreaEl = document.getElementById("print-area");
+        if (!printAreaEl) { alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์"); return; }
+        const shopInfo = { name: "อู่ซ่อมรถยนต์ ที.เจ ยนต์", addressLine1: "เลขที่ 295 หมู่ที่ 8 ", addressLine2: "ตำบลศิลา อำเภอเมือง จังหวัดขอนแก่น 40000", phone: "094 2919 825", logoUrl: "" };
+        let itemsHtml = ''; let subtotal = 0;
+        workOrder.quote.items.forEach((item, index) => {
+            const itemPrice = parseFloat(item.price || 0);
+            itemsHtml += `<tr><td style="text-align:center; border:1px solid #ddd; padding:8px; font-size:0.9em;">${index + 1}</td><td style="border:1px solid #ddd; padding:8px; font-size:0.9em;">${item.name}</td><td style="text-align:right; border:1px solid #ddd; padding:8px; font-size:0.9em;">${itemPrice.toFixed(2)}</td></tr>`;
+            subtotal += itemPrice;
+        });
+        const discount = parseFloat(workOrder.quote.discount || 0); const total = subtotal - discount;
+        const htmlContent = `
+            <div style="font-family: 'Sarabun', Arial, sans-serif; padding:20px; max-width:210mm; margin:auto; background:#fff; font-size:10pt;"><table style="width:100%; border-collapse:collapse; margin-bottom:15px;"><tr>
+            <td style="width:60%;">${shopInfo.logoUrl ? `<img src="${shopInfo.logoUrl}" alt="Logo" style="max-height:40px; margin-bottom:8px;"><br>` : ''}<strong style="font-size:1.1em;">${shopInfo.name}</strong><br><span style="font-size:0.85em;">${shopInfo.addressLine1}</span><br><span style="font-size:0.85em;">${shopInfo.addressLine2}</span><br><span style="font-size:0.85em;">โทร: ${shopInfo.phone}</span></td>
+            <td style="width:40%; text-align:right; vertical-align:top;"><h2 style="margin:0; font-size:1.6em;">ใบรับรถเข้าซ่อม</h2><p style="margin:5px 0; font-size:0.9em;">เลขที่: <strong>${workOrder.id}</strong></p><p style="margin:5px 0; font-size:0.9em;">วันที่รับรถ: ${new Date(workOrder.receivedAt).toLocaleString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', hour:'2-digit', minute:'2-digit' })}</p></td>
+            </tr></table><hr style="border:0; border-top:1px solid #ccc; margin:10px 0;"><table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:0.95em;">
+            <tr><td style="padding:5px; width:100px;"><strong>ลูกค้า:</strong></td><td style="padding:5px;">${workOrder.quote.customer}</td><td style="padding:5px; width:80px;"><strong>โทร:</strong></td><td style="padding:5px;">${workOrder.quote.phone || '-'}</td></tr>
+            <tr><td style="padding:5px;"><strong>ข้อมูลรถ:</strong></td><td style="padding:5px;" colspan="3">${workOrder.quote.carInfo}</td></tr>
+            <tr><td style="padding:5px;"><strong>สถานะปัจจุบัน:</strong></td><td style="padding:5px;" colspan="3"><strong>${workOrder.status}</strong></td></tr>
+            ${workOrder.note ? `<tr><td style="padding:5px; vertical-align:top;"><strong>หมายเหตุ:</strong></td><td style="padding:5px;" colspan="3">${workOrder.note.replace(/\n/g, "<br>")}</td></tr>` : ''}
+            </table><strong style="font-size:1em;">รายการซ่อม/อะไหล่:</strong><table style="width:100%; border-collapse:collapse; margin-top:5px; margin-bottom:15px;"><thead><tr style="background-color:#f2f2f2;"><th style="width:8%; text-align:center; border:1px solid #ccc; padding:6px; font-size:0.9em;">ลำดับ</th><th style="width:62%; text-align:left; border:1px solid #ccc; padding:6px; font-size:0.9em;">รายการ</th><th style="width:30%; text-align:right; border:1px solid #ccc; padding:6px; font-size:0.9em;">ราคา (บาท)</th></tr></thead><tbody>${itemsHtml}</tbody>
+            <tfoot><tr><td colspan="2" style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">รวมเป็นเงิน:</td><td style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">${subtotal.toFixed(2)}</td></tr>
+            ${discount > 0 ? `<tr><td colspan="2" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ส่วนลด:</td><td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">-${discount.toFixed(2)}</td></tr>` : ''}
+            <tr style="background-color:#f2f2f2;"><td colspan="2" style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">ยอดค่าบริการสุทธิ:</td><td style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">${total.toFixed(2)}</td></tr>
+            </tfoot></table><table style="width:100%; margin-top:40px; font-size:0.9em;"><tr>
+            <td style="width:50%; text-align:center;"><p style="margin-bottom:30px;">&nbsp;</p><p>....................................................</p><p>( ${workOrder.quote.customer} )</p><p>ผู้นำรถเข้าซ่อม/ลูกค้า</p></td>
+            <td style="width:50%; text-align:center;"><p style="margin-bottom:30px;">&nbsp;</p><p>....................................................</p><p>( ผู้รับรถ )</p><p>${shopInfo.name}</p></td>
+            </tr></table><p style="text-align:center; margin-top:20px; font-size:0.8em;"><i>เงื่อนไขการรับประกัน: รับประกันงานซ่อม 3 เดือน (ไม่รวมอะไหล่ที่ลูกค้านำมาเอง)</i></p></div>`;
+        printAreaEl.innerHTML = htmlContent; printAreaEl.classList.add('active-for-print');
+        window.print();
+        printAreaEl.classList.remove('active-for-print'); printAreaEl.innerHTML = '';
+    }
+
+    // --- PARTS SALE SECTION ---
+    function createPartItemInput(name = '', price = 0, qty = 1) {
+        const div = document.createElement("div"); div.className = "form-line-item";
+        const inputName = document.createElement("input"); inputName.type = "text"; inputName.placeholder = "ชื่ออะไหล่"; inputName.required = true; inputName.value = name; inputName.className = "form-input item-name-input"; inputName.setAttribute('list', 'stock-item-names-datalist');
+        const inputQty = document.createElement("input"); inputQty.type = "number"; inputQty.min = "1"; inputQty.placeholder = "จำนวน"; inputQty.required = true; inputQty.value = qty; inputQty.className = "form-input item-qty-input";
+        const inputPrice = document.createElement("input"); inputPrice.type = "number"; inputPrice.min = "0"; inputPrice.step = "0.01"; inputPrice.placeholder = "ราคา/หน่วย"; inputPrice.required = true; inputPrice.value = price > 0 ? price.toFixed(2) : ''; inputPrice.className = "form-input item-price-input";
+        inputName.addEventListener('change', (e) => {
+            const selectedStockItem = stockItems.find(si => si.name === e.target.value);
+            if (selectedStockItem) { inputPrice.value = selectedStockItem.sellingPrice.toFixed(2); recalcPartsTotal(); }
+        });
+        const removeBtn = document.createElement("button"); removeBtn.type = "button"; removeBtn.className = "btn-icon danger remove-line-item"; removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>'; removeBtn.onclick = () => { div.remove(); recalcPartsTotal(); };
+        inputPrice.oninput = recalcPartsTotal; inputQty.oninput = recalcPartsTotal;
+        div.appendChild(inputName); div.appendChild(inputQty); div.appendChild(inputPrice); div.appendChild(removeBtn);
+        return div;
+    }
+    function recalcPartsTotal() {
+        const partsItemsContainer = document.getElementById("parts-items-container");
+        const partsTotalSpan = document.getElementById("parts-total");
+        const partsDiscountInput = document.getElementById("parts-discount");
+        if (!partsItemsContainer || !partsTotalSpan || !partsDiscountInput) return;
+        let total = 0;
+        Array.from(partsItemsContainer.children).forEach(child => {
+            const qtyIn = child.querySelector('.item-qty-input'); const priceIn = child.querySelector('.item-price-input');
+            if (qtyIn && priceIn && qtyIn.value && priceIn.value) total += (parseFloat(qtyIn.value) || 0) * (parseFloat(priceIn.value) || 0);
+        });
+        const discount = parseFloat(partsDiscountInput.value) || 0; total = Math.max(0, total - discount);
+        partsTotalSpan.textContent = total.toFixed(2);
+    }
+    function refreshPartsSalesHistoryList() {
+        const salesHistoryListTbody = document.getElementById("sales-history-list");
+        const salesHistoryPagination = document.getElementById("sales-history-pagination");
+        if (!salesHistoryListTbody || !salesHistoryPagination) return;
+        salesHistoryListTbody.innerHTML = "";
+        const sortedSales = [...partsSaleItems].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const totalPages = Math.ceil(sortedSales.length / saleHistoryItemsPerPage);
+        if (sortedSales.length === 0) {
+            const tr = salesHistoryListTbody.insertRow();
+            const td = tr.insertCell();
+            td.colSpan = 7;
+            td.textContent = "ยังไม่มีประวัติการขาย";
+            td.style.textAlign = "center";
+        } else {
+            if (currentSaleHistoryPage > totalPages) currentSaleHistoryPage = totalPages;
+            if (currentSaleHistoryPage < 1) currentSaleHistoryPage = 1;
+            const start = (currentSaleHistoryPage - 1) * saleHistoryItemsPerPage;
+            const paginatedSales = sortedSales.slice(start, start + saleHistoryItemsPerPage);
+            paginatedSales.forEach(s => {
+                const tr = salesHistoryListTbody.insertRow();
+                tr.insertCell().textContent = s.id;
+                tr.insertCell().textContent = s.customer || "-";
+                tr.insertCell().textContent = new Date(s.createdAt)
+                      .toLocaleString('th-TH', { year: '2-digit', month: 'short', day: 'numeric', hour:'2-digit', minute:'2-digit'});
+                const tdItems = tr.insertCell();
+                const ul = document.createElement("ul");
+                ul.className = "detail-list-table";
+                s.items.forEach(item => {
+                    const li = document.createElement("li");
+                    li.textContent = `${item.name} (x${item.qty}) @ ${item.price.toFixed(2)}`;
+                    ul.appendChild(li);
+                });
+                tdItems.appendChild(ul);
+                const discountCell = tr.insertCell();
+                discountCell.textContent = (s.discount || 0).toFixed(2);
+                discountCell.className = "text-right";
+                const totalCell = tr.insertCell();
+                totalCell.textContent = s.total.toFixed(2);
+                totalCell.className = "text-right";
+                const actionTd = tr.insertCell();
+                actionTd.className = "table-actions";
+                const printBtn = document.createElement('button');
+                printBtn.className = "btn-icon info";
+                printBtn.innerHTML = '<i class="fas fa-print"></i>';
+                printBtn.onclick = () => printPartsSaleReceipt(s);
+                actionTd.appendChild(printBtn);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = "btn-icon danger";
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteBtn.onclick = () => deletePartsSaleWithPassword(s.id);
+                actionTd.appendChild(deleteBtn);
+            });
+        }
+        // Pagination controls
+        salesHistoryPagination.innerHTML = "";
+        if (totalPages > 1) {
+            const prevBtn = document.createElement("button");
+            prevBtn.textContent = "Prev";
+            prevBtn.onclick = () => {
+                if(currentSaleHistoryPage > 1) { currentSaleHistoryPage--; refreshPartsSalesHistoryList(); }
+            };
+            salesHistoryPagination.appendChild(prevBtn);
+            const pageInfo = document.createElement("span");
+            pageInfo.textContent = ` Page ${currentSaleHistoryPage} of ${totalPages} `;
+            salesHistoryPagination.appendChild(pageInfo);
+            const nextBtn = document.createElement("button");
+            nextBtn.textContent = "Next";
+            nextBtn.onclick = () => {
+                if(currentSaleHistoryPage < totalPages) { currentSaleHistoryPage++; refreshPartsSalesHistoryList(); }
+            };
+            salesHistoryPagination.appendChild(nextBtn);
+        }
+    }
+    function deletePartsSaleWithPassword(saleId){
+        const pass = prompt("กรุณากรอกรหัสผ่านเพื่อลบรายการขาย:");
+        if (pass === deletePassword) {
+            const index = partsSaleItems.findIndex(s => s.id === saleId);
+            if (index > -1) { partsSaleItems.splice(index, 1); saveData(); alert("ลบรายการขายเรียบร้อยแล้ว"); }
+        } else if (pass !== null) { alert("รหัสผ่านไม่ถูกต้อง"); }
+    }
+    function printPartsSaleReceipt(saleData) {
+        if (!saleData || !saleData.items) { alert("ข้อมูลการขายไม่สมบูรณ์สำหรับพิมพ์"); return; }
+        const printAreaEl = document.getElementById("print-area");
+        if (!printAreaEl) { alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์"); return; }
+        const shopInfo = { name: "ร้านอะไหล่ยนต์ ที.เจ ยนต์", addressLine1: "เลขที่ 295 หมู่ที่ 8", addressLine2: "ตำบลศิลา อำเภอเมือง จังหวัดขอนแก่น 40000", phone: "094 2919 825", taxId: "", logoUrl: "" };
+        let itemsHtml = ''; let subtotal = 0;
+        saleData.items.forEach((item, index) => {
+            const itemTotal = (parseFloat(item.qty) || 0) * (parseFloat(item.price) || 0);
+            itemsHtml += `<tr><td style="text-align:center; border:1px solid #ddd; padding:6px; font-size:0.9em;">${index + 1}</td><td style="border:1px solid #ddd; padding:6px; font-size:0.9em;">${item.name}</td><td style="text-align:center; border:1px solid #ddd; padding:6px; font-size:0.9em;">${item.qty}</td><td style="text-align:right; border:1px solid #ddd; padding:6px; font-size:0.9em;">${(parseFloat(item.price) || 0).toFixed(2)}</td><td style="text-align:right; border:1px solid #ddd; padding:6px; font-size:0.9em;">${itemTotal.toFixed(2)}</td></tr>`;
+            subtotal += itemTotal;
+        });
+        const discount = parseFloat(saleData.discount || 0); const totalNet = subtotal - discount;
+        const cashReceived = saleData.payment ? parseFloat(saleData.payment.cashReceived || 0) : 0;
+        const changeGiven = saleData.payment ? parseFloat(saleData.payment.changeGiven || 0) : 0;
+        const vatRate = 0.07; let amountBeforeVat = totalNet; let vatAmount = 0;
+        if (vatRate > 0) { amountBeforeVat = totalNet / (1 + vatRate); vatAmount = totalNet - amountBeforeVat; }
+        const htmlContent = `
+            <div style="font-family: 'Sarabun', Arial, sans-serif; padding: 20px; max-width: 210mm; margin:auto; background:#fff; font-size:10pt;"><table style="width:100%; border-collapse:collapse; margin-bottom:15px;"><tr>
+            <td style="width:60%;">${shopInfo.logoUrl ? `<img src="${shopInfo.logoUrl}" alt="Logo" style="max-height:40px; margin-bottom:8px;"><br>` : ''}<strong style="font-size:1.1em;">${shopInfo.name}</strong><br><span style="font-size:0.85em;">${shopInfo.addressLine1}</span><br><span style="font-size:0.85em;">${shopInfo.addressLine2}</span><br><span style="font-size:0.85em;">โทร: ${shopInfo.phone}</span><br>${shopInfo.taxId ? `<span style="font-size:0.85em;">เลขประจำตัวผู้เสียภาษี: ${shopInfo.taxId}</span>` : ''}</td>
+            <td style="width:40%; text-align:right; vertical-align:top;"><h2 style="margin:0 0 5px 0; font-size:1.6em;">ใบเสร็จรับเงิน/ใบกำกับภาษีอย่างย่อ</h2><p style="margin:5px 0; font-size:0.9em;">เลขที่: <strong>${saleData.id}</strong></p><p style="margin:5px 0; font-size:0.9em;">วันที่: ${new Date(saleData.createdAt).toLocaleString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', hour:'2-digit', minute:'2-digit' })}</p></td></tr></table>
+            <hr style="border:0; border-top:1px solid #ccc; margin:10px 0;">${saleData.customer ? `<div style="margin-bottom:10px; font-size:0.95em;"><strong>ลูกค้า:</strong> ${saleData.customer}</div>` : ''}
+            <table style="width:100%; border-collapse:collapse; margin-bottom:10px;"><thead><tr style="background-color:#f2f2f2;"><th style="width:8%; text-align:center; border:1px solid #ccc; padding:6px; font-size:0.9em;">ลำดับ</th><th style="width:40%; text-align:left; border:1px solid #ccc; padding:6px; font-size:0.9em;">รายการ</th><th style="width:12%; text-align:center; border:1px solid #ccc; padding:6px; font-size:0.9em;">จำนวน</th><th style="width:20%; text-align:right; border:1px solid #ccc; padding:6px; font-size:0.9em;">ราคา/หน่วย</th><th style="width:20%; text-align:right; border:1px solid #ccc; padding:6px; font-size:0.9em;">รวม (บาท)</th></tr></thead><tbody>${itemsHtml}</tbody>
+            <tfoot><tr><td colspan="4" style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">รวมเป็นเงิน:</td><td style="text-align:right; border-top:1px solid #ccc; padding:6px; font-weight:bold; font-size:0.9em;">${subtotal.toFixed(2)}</td></tr>
+            ${discount > 0 ? `<tr><td colspan="4" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ส่วนลด:</td><td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">-${discount.toFixed(2)}</td></tr>` : ''}
+            ${vatRate > 0 ? `<tr><td colspan="4" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ยอดก่อนภาษีมูลค่าเพิ่ม:</td><td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">${amountBeforeVat.toFixed(2)}</td></tr><tr><td colspan="4" style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">ภาษีมูลค่าเพิ่ม ${vatRate*100}%:</td><td style="text-align:right; padding:6px; font-weight:bold; font-size:0.9em;">${vatAmount.toFixed(2)}</td></tr>` : ''}
+            <tr style="background-color:#f2f2f2;"><td colspan="4" style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">ยอดสุทธิที่ต้องชำระ:</td><td style="text-align:right; padding:8px; font-weight:bold; font-size:1em;">${totalNet.toFixed(2)}</td></tr>
+            ${saleData.payment ? `<tr><td colspan="4" style="text-align:right; padding:6px; font-size:0.9em;">รับเงินสด:</td><td style="text-align:right; padding:6px; font-size:0.9em;">${cashReceived.toFixed(2)}</td></tr><tr><td colspan="4" style="text-align:right; padding:6px; font-size:0.9em;">เงินทอน:</td><td style="text-align:right; padding:6px; font-size:0.9em;">${changeGiven.toFixed(2)}</td></tr>` : ''}
+            </tfoot></table><div style="margin-top:30px; font-size:0.9em; display: flex; justify-content: space-between;"><div style="text-align:center;"><p style="margin-bottom:30px;">&nbsp;</p><p>......................................</p><p>( ${saleData.customer || 'ผู้ซื้อ/Customer'} )</p></div><div style="text-align:center;"><p style="margin-bottom:30px;">&nbsp;</p><p>......................................</p><p>( ผู้ขาย/Cashier )</p><p>${shopInfo.name}</p></div></div>
+            <p style="text-align:center; margin-top:20px; font-size:0.8em; font-style:italic;">ขอบคุณที่ใช้บริการ Thank You</p>${vatRate > 0 ? `<p style="text-align:center; font-size:0.8em;">ราคาสินค้ารวมภาษีมูลค่าเพิ่มแล้ว / Price includes VAT</p>` : ''}</div>`;
+        printAreaEl.innerHTML = htmlContent; printAreaEl.classList.add('active-for-print');
+        window.print();
+        printAreaEl.classList.remove('active-for-print'); printAreaEl.innerHTML = '';
+    }
+
+    // --- STOCK MANAGEMENT SECTION ---
+    function refreshStockList() {
+        const stockListTbody = document.getElementById('stock-list-tbody');
+        const stockPagination = document.getElementById('stock-pagination');
+        if (!stockListTbody || !stockPagination) return;
+        stockListTbody.innerHTML = "";
+        updateStockItemDatalist();
+        const sortedStock = [...stockItems].sort((a, b) => (a.name || "").localeCompare(b.name || "", 'th'));
+        const totalPages = Math.ceil(sortedStock.length / stockItemsPerPage);
+        if (sortedStock.length === 0) {
+            const tr = stockListTbody.insertRow();
+            const td = tr.insertCell();
+            td.colSpan = 8;
+            td.style.textAlign = "center";
+            td.textContent = "ยังไม่มีสินค้าในสต็อก";
+        } else {
+            if (currentStockPage > totalPages) currentStockPage = totalPages;
+            if (currentStockPage < 1) currentStockPage = 1;
+            const start = (currentStockPage - 1) * stockItemsPerPage;
+            const paginatedStock = sortedStock.slice(start, start + stockItemsPerPage);
+            paginatedStock.forEach(item => {
+                const tr = stockListTbody.insertRow();
+                tr.insertCell().textContent = item.sku || '-';
+                tr.insertCell().textContent = item.name;
+                tr.insertCell().textContent = item.category || '-';
+                const qtyCell = tr.insertCell();
+                qtyCell.textContent = item.quantity;
+                qtyCell.className = "text-right";
+                if (item.quantity <= (Number(item.reorderPoint) || 0) && item.quantity > 0) {
+                    qtyCell.style.color = '#f39c12';
+                    qtyCell.style.fontWeight = 'bold';
+                } else if (item.quantity <= 0) {
+                    qtyCell.classList.add('qty-low-stock');
+                }
+                const costPCell = tr.insertCell();
+                costPCell.textContent = (item.costPrice || 0).toFixed(2);
+                costPCell.className = "text-right";
+                // ถ้ามีการซ่อนต้นทุนไว้
+                costPCell.style.display = document.getElementById('stock-table')
+                     .querySelector('.col-price[style*="display:none"]') ? "none" : "table-cell";
+                const sellPCell = tr.insertCell();
+                sellPCell.textContent = (item.sellingPrice || 0).toFixed(2);
+                sellPCell.className = "text-right";
+                const reorderCell = tr.insertCell();
+                reorderCell.textContent = item.reorderPoint || 0;
+                reorderCell.className = "text-right";
+                const actionTd = tr.insertCell();
+                actionTd.className = "table-actions";
+                const editBtn = document.createElement('button');
+                editBtn.className = "btn-icon warning";
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.setAttribute("aria-label", "แก้ไขสต็อก");
+                editBtn.onclick = () => populateStockFormForEdit(item.id);
+                actionTd.appendChild(editBtn);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = "btn-icon danger";
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteBtn.setAttribute("aria-label", "ลบสต็อก");
+                deleteBtn.onclick = () => deleteStockItemWithPassword(item.id);
+                actionTd.appendChild(deleteBtn);
+            });
+        }
+        // Pagination controls
+        stockPagination.innerHTML = "";
+        if (totalPages > 1) {
+            const prevBtn = document.createElement("button");
+            prevBtn.textContent = "Prev";
+            prevBtn.onclick = () => {
+                if (currentStockPage > 1) { currentStockPage--; refreshStockList(); }
+            };
+            stockPagination.appendChild(prevBtn);
+            const pageInfo = document.createElement("span");
+            pageInfo.textContent = ` Page ${currentStockPage} of ${totalPages} `;
+            stockPagination.appendChild(pageInfo);
+            const nextBtn = document.createElement("button");
+            nextBtn.textContent = "Next";
+            nextBtn.onclick = () => {
+                if (currentStockPage < totalPages) { currentStockPage++; refreshStockList(); }
+            };
+            stockPagination.appendChild(nextBtn);
+        }
+    }
+    function updateStockItemDatalist() {
+        const stockItemNamesDatalist = document.getElementById("stock-item-names-datalist");
+        if (!stockItemNamesDatalist) return; stockItemNamesDatalist.innerHTML = "";
+        stockItems.forEach(item => { const option = document.createElement('option'); option.value = item.name; stockItemNamesDatalist.appendChild(option); });
+    }
+    function populateStockFormForEdit(itemId) {
+        const item = stockItems.find(i => i.id === itemId);
+        if (item) {
+            document.getElementById('stock-item-id-input').value = item.id;
+            document.getElementById('stock-item-sku-input').value = item.sku || '';
+            document.getElementById('stock-item-name-input').value = item.name;
+            document.getElementById('stock-item-category-input').value = item.category || '';
+            document.getElementById('stock-item-quantity-input').value = item.quantity;
+            document.getElementById('stock-item-cost-price-input').value = (item.costPrice || 0).toFixed(2);
+            document.getElementById('stock-item-selling-price-input').value = (item.sellingPrice || 0).toFixed(2);
+            document.getElementById('stock-item-reorder-point-input').value = item.reorderPoint || 0;
+            document.getElementById('stock-item-notes-input').value = item.notes || '';
+            document.getElementById('stock-submit-btn').textContent = "บันทึกการแก้ไขสินค้า";
+            document.getElementById('stock-cancel-edit-btn').style.display = "inline-block";
+            document.getElementById('stock-item-name-input').focus();
+            window.scrollTo(0, document.getElementById('stock-form').offsetTop - 70);
+        }
+    }
+    function deleteStockItemWithPassword(itemId){
+        const pass = prompt("กรุณากรอกรหัสผ่านเพื่อลบสินค้า:");
+        if (pass === deletePassword) {
+            const index = stockItems.findIndex(item => item.id === itemId);
+            if (index > -1) { stockItems.splice(index, 1); saveData(); alert("ลบสินค้าเรียบร้อย"); }
+        } else if (pass !== null) { alert("รหัสผ่านไม่ถูกต้อง"); }
+    }
+    function printStockTable() {
+        const printAreaEl = document.getElementById("print-area");
+        if (!printAreaEl) { alert("เกิดข้อผิดพลาด: ไม่พบพื้นที่สำหรับการพิมพ์"); return; }
+        const shopInfo = { name: "อู่ซ่อมรถยนต์ ที.เจ ยนต์" }; let itemsHtml = '';
+        const sortedStockItems = [...stockItems].sort((a, b) => (a.name || "").localeCompare(b.name || "", 'th'));
+        if (sortedStockItems.length > 0) {
+            sortedStockItems.forEach((item, index) => {
+                itemsHtml += `<tr><td style="border:1px solid #ccc; padding:5px; text-align:center;">${index + 1}</td><td style="border:1px solid #ccc; padding:5px;">${item.sku || '-'}</td><td style="border:1px solid #ccc; padding:5px;">${item.name}</td><td style="border:1px solid #ccc; padding:5px;">${item.category || '-'}</td><td style="border:1px solid #ccc; padding:5px; text-align:right;">${item.quantity}</td><td style="border:1px solid #ccc; padding:5px; text-align:right;">${(item.sellingPrice || 0).toFixed(2)}</td><td style="border:1px solid #ccc; padding:5px; text-align:right;">${item.reorderPoint || 0}</td></tr>`;
+            });
+        } else { itemsHtml = '<tr><td colspan="7" style="text-align:center; padding:10px; border:1px solid #ccc;">ไม่มีสินค้าในสต็อก</td></tr>'; }
+        const htmlContent = `
+            <div style="font-family: 'Sarabun', Arial, sans-serif; padding:0; max-width:210mm; margin:auto; background:#fff; font-size:10pt;"><div style="text-align:center; margin-bottom:15px;"><h2 style="margin:0 0 5px 0; font-size:1.4em;">รายงานสต็อกสินค้า</h2><h3 style="margin:0 0 5px 0; font-size:1.1em;">${shopInfo.name}</h3><p style="margin:5px 0; font-size:0.9em;">ข้อมูล ณ วันที่: ${new Date().toLocaleString('th-TH', { day: 'numeric', month: 'long', year: 'numeric', hour:'2-digit', minute:'2-digit' })}</p></div>
+            <table style="width:100%; border-collapse:collapse; font-size:0.9em;"><thead><tr style="background-color:#f2f2f2; font-weight:bold;"><th style="border:1px solid #ccc; padding:6px; width:5%;">#</th><th style="border:1px solid #ccc; padding:6px; width:15%;">SKU</th><th style="border:1px solid #ccc; padding:6px; width:30%;">ชื่อสินค้า</th><th style="border:1px solid #ccc; padding:6px; width:15%;">หมวดหมู่</th><th style="border:1px solid #ccc; padding:6px; width:10%; text-align:right;">จำนวน</th><th style="border:1px solid #ccc; padding:6px; width:15%; text-align:right;">ราคาขาย</th><th style="border:1px solid #ccc; padding:6px; width:10%; text-align:right;">จุดสั่งซื้อ</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+            <p style="text-align:right; margin-top:15px; font-size:0.8em;">รวม ${sortedStockItems.length} รายการ</p></div>`;
+        printAreaEl.innerHTML = htmlContent; printAreaEl.classList.add('active-for-print');
+        window.print();
+        printAreaEl.classList.remove('active-for-print'); printAreaEl.innerHTML = '';
+    }
+
+    // --- DASHBOARD ---
+    function updateDashboardStats() {
+        const el = (id) => document.getElementById(id);
+        const dashboardLastUpdated = el("dashboard-last-updated");
+        if (dashboardLastUpdated) dashboardLastUpdated.textContent = new Date().toLocaleString('th-TH', { dateStyle:'medium', timeStyle:'short'});
+
+        let totalRevenue = 0; let revenueFromWorkorders = 0;
+        workorders.forEach(wo => { if(wo.status === "ซ่อมเสร็จแล้ว" && wo.quote && typeof wo.quote.total === 'number') revenueFromWorkorders += wo.quote.total; });
+        let revenueFromPartsSales = 0;
+        partsSaleItems.forEach(ps => { if(typeof ps.total === 'number') revenueFromPartsSales += ps.total; });
+        totalRevenue = revenueFromWorkorders + revenueFromPartsSales;
+
+        if(el("stats-overall-revenue")) el("stats-overall-revenue").textContent = totalRevenue.toFixed(2);
+        if(el("stats-revenue-workorders")) el("stats-revenue-workorders").textContent = revenueFromWorkorders.toFixed(2);
+        if(el("stats-revenue-parts-sales")) el("stats-revenue-parts-sales").textContent = revenueFromPartsSales.toFixed(2);
+        if(el("stats-total-quotes")) el("stats-total-quotes").textContent = quotes.length;
+        if(el("stats-total-workorders")) el("stats-total-workorders").textContent = workorders.length;
+        if(el("stats-total-parts-sales")) el("stats-total-parts-sales").textContent = partsSaleItems.length;
+        if(el("stats-total-transactions")) el("stats-total-transactions").textContent = quotes.length + workorders.length + partsSaleItems.length;
+
+        // Low Stock List update (already existed and seems fine)
+        const lowStockList = el("low-stock-list");
+        const lowStockEmptyMsg = el("low-stock-summary-list")?.querySelector("p.empty-message");
+        if(lowStockList && lowStockEmptyMsg) {
+            lowStockList.innerHTML = '';
+            const itemsNearEmpty = stockItems.filter(item => item.quantity <= (Number(item.reorderPoint) || 0)).sort((a,b) => a.quantity - b.quantity).slice(0, 5);
+            if (itemsNearEmpty.length > 0) {
+                itemsNearEmpty.forEach(item => { const li = document.createElement('li'); li.innerHTML = `<span class="item-name">${item.name}</span> <span class="item-qty">${item.quantity} ชิ้น</span>`; lowStockList.appendChild(li); });
+                lowStockEmptyMsg.style.display = 'none';
+            } else { lowStockEmptyMsg.style.display = 'block'; }
+        }
+
+        // --- PIE CHART: Monthly Summary (Current Month Revenue Breakdown) ---
+        const monthlySummaryCanvas = el('monthly-summary-canvas');
+        if (monthlySummaryCanvas) {
+            const currentDate = new Date();
+            const currentMonthYear = currentDate.toLocaleString('th-TH', { month: 'short', year: '2-digit' });
+            let currentMonthWorkOrderRevenue = 0;
+            workorders.forEach(wo => {
+                const woDate = new Date(wo.receivedAt);
+                const woMonthYear = woDate.toLocaleString('th-TH', { month: 'short', year: '2-digit' });
+                if (woMonthYear === currentMonthYear && wo.status === "ซ่อมเสร็จแล้ว" && wo.quote && typeof wo.quote.total === 'number')
+                    currentMonthWorkOrderRevenue += wo.quote.total;
+            });
+            let currentMonthPartsSaleRevenue = 0;
+            partsSaleItems.forEach(ps => {
+                const psDate = new Date(ps.createdAt);
+                const psMonthYear = psDate.toLocaleString('th-TH', { month: 'short', year: '2-digit' });
+                if (psMonthYear === currentMonthYear && typeof ps.total === 'number')
+                    currentMonthPartsSaleRevenue += ps.total;
+            });
+            if (monthlySummaryPieInstance) monthlySummaryPieInstance.destroy();
+            if (currentMonthWorkOrderRevenue > 0 || currentMonthPartsSaleRevenue > 0) {
+                monthlySummaryPieInstance = new Chart(monthlySummaryCanvas.getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: ['งานซ่อม','ขายอะไหล่'],
+                        datasets: [{
+                            data: [currentMonthWorkOrderRevenue, currentMonthPartsSaleRevenue],
+                            backgroundColor: ['rgba(54, 162, 235, 0.8)', 'rgba(75, 192, 192, 0.8)'],
+                            borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { size: 10 } }
+                            },
+                            tooltip: { 
+                                padding: 10,
+                                callbacks: { 
+                                    label: (context) => `${context.label}: ${new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(context.parsed)}`
+                                }
+                            },
+                            title: { display: false }
+                        }
+                    }
+                });
+            } else {
+                const ctx = monthlySummaryCanvas.getContext('2d');
+                ctx.clearRect(0, 0, monthlySummaryCanvas.width, monthlySummaryCanvas.height);
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#888';
+                ctx.font = "12px 'Sarabun', sans-serif";
+                ctx.fillText('ไม่มีข้อมูลสรุปเดือนนี้', monthlySummaryCanvas.width / 2, monthlySummaryCanvas.height / 2);
+            }
+        }
+
+        // --- PIE CHART: Monthly Sales (Sales Proportions by Month) ---
+        const monthlySalesCanvas = el('monthly-sales-canvas');
+        if (monthlySalesCanvas) {
+            const monthlySalesData = {}; const allSalesTransactions = [];
+            workorders.forEach(wo => { if (wo.status === "ซ่อมเสร็จแล้ว" && wo.quote && typeof wo.quote.total === 'number') allSalesTransactions.push({ date: new Date(wo.receivedAt), amount: wo.quote.total }); });
+            partsSaleItems.forEach(ps => { if (typeof ps.total === 'number') allSalesTransactions.push({ date: new Date(ps.createdAt), amount: ps.total }); });
+            allSalesTransactions.sort((a,b) => b.date - a.date); // Sort newest first
+            const uniqueMonths = new Set(); const salesDataForChart = {};
+            for (const transaction of allSalesTransactions) { // Get up to 6 unique recent months
+                const monthYear = transaction.date.toLocaleString('th-TH', { month: 'short', year: '2-digit' });
+                if (uniqueMonths.size < 6 || uniqueMonths.has(monthYear)) {
+                     uniqueMonths.add(monthYear);
+                     salesDataForChart[monthYear] = (salesDataForChart[monthYear] || 0) + transaction.amount;
+                }
+                 if(uniqueMonths.size >=6 && !uniqueMonths.has(monthYear)) break; // stop if we have 6 months and current is new
+            }
+            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            const sortedMonthKeys = Object.keys(salesDataForChart).sort((a, b) => {
+                const [mABrev, yA] = a.split(" "); const [mBPrev, yB] = b.split(" ");
+                return (parseInt(yA) * 100 + thaiMonths.indexOf(mABrev)) - (parseInt(yB) * 100 + thaiMonths.indexOf(mBPrev));
+            });
+            if (monthlySalesPieInstance) monthlySalesPieInstance.destroy();
+            if (sortedMonthKeys.length > 0) {
+                monthlySalesPieInstance = new Chart(monthlySalesCanvas.getContext('2d'), {
+                    type: 'pie', data: { labels: sortedMonthKeys, datasets: [{ data: sortedMonthKeys.map(key => salesDataForChart[key]), backgroundColor: ['rgba(255, 99, 132, 0.8)','rgba(54, 162, 235, 0.8)','rgba(255, 206, 86, 0.8)','rgba(75, 192, 192, 0.8)','rgba(153, 102, 255, 0.8)','rgba(255, 159, 64, 0.8)'], borderColor: ['#fff'], borderWidth: 1 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels:{font:{size:10}} }, title: { display: false }, tooltip: { callbacks: { label: c => `${c.label}: ${new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(c.parsed)}` } } } }
+                });
+            } else { const ctx = monthlySalesCanvas.getContext('2d'); ctx.clearRect(0, 0, monthlySalesCanvas.width, monthlySalesCanvas.height); ctx.textAlign = 'center'; ctx.fillStyle = '#888'; ctx.font = "12px 'Sarabun', sans-serif"; ctx.fillText('ไม่มีข้อมูลยอดขาย', monthlySalesCanvas.width / 2, monthlySalesCanvas.height / 2); }
+        }
+
+        // --- BAR CHART: Work Order Status ---
+        const woPending = workorders.filter(w => w.status === 'รับเข้าซ่อม').length;
+        const woInProgress = workorders.filter(w => w.status === 'ระหว่างซ่อม').length;
+        const woCompleted = workorders.filter(w => w.status === 'ซ่อมเสร็จแล้ว').length;
+        const workOrderStatusCanvas = el('workorder-status-canvas');
+        if (workOrderStatusCanvas) {
+            if (workOrderStatusChartInstance) workOrderStatusChartInstance.destroy();
+            workOrderStatusChartInstance = new Chart(workOrderStatusCanvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: [`รับเข้า (${woPending})`, `ระหว่างซ่อม (${woInProgress})`, `ซ่อมเสร็จ (${woCompleted})`],
+                    datasets: [{
+                        data: [woPending, woInProgress, woCompleted],
+                        backgroundColor: ['rgba(231, 76, 60, 0.7)','rgba(243, 156, 18, 0.7)','rgba(46, 204, 113, 0.7)'],
+                        borderColor: ['rgba(231, 76, 60, 1)','rgba(243, 156, 18, 1)','rgba(46, 204, 113, 1)'],
+                        borderWidth: 1, barThickness: 'flex', maxBarThickness: 60
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, indexAxis: 'x',
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: '#666' }, grid: { color: '#e0e0e0' } }, x: { ticks: { color: '#666', font:{size:10} }, grid: { display: false } } },
+                    plugins: { legend: { display: false }, title: { display: false },
+                        tooltip: { backgroundColor: 'rgba(0,0,0,0.7)', titleColor: '#fff', bodyColor: '#fff', callbacks: { label: c => ` จำนวน: ${c.parsed.y} งาน`, title: ti => ti[0].label.split(' (')[0] } }
+                    }
+                }
+            });
+        }
+    }
+
+    function getMonthNumber(monthName) { // Kept if any specific logic still relies on it, but current sort is self-contained
+        const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+        return monthNames.indexOf(monthName) + 1;
+    }
+
+    // --- NAVIGATION ---
+    function switchAppSection(sectionIdToShow) {
+        document.querySelectorAll('.app-section').forEach(section => section.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        const targetSection = document.getElementById(sectionIdToShow);
+        const targetNavItem = document.querySelector(`.nav-item[data-section-id="${sectionIdToShow}"]`);
+        if (targetSection && targetNavItem) {
+            targetSection.classList.add('active'); targetNavItem.classList.add('active');
+            if (sectionIdToShow === 'dashboard-section') updateDashboardStats();
+            else if (sectionIdToShow === 'quote-section') {
+                refreshQuoteSelect(); const qc = document.getElementById("quote-items-container");
+                if(qc && qc.children.length === 0) qc.appendChild(createQuoteItemInput()); recalcQuoteTotal();
+            } else if (sectionIdToShow === 'workorder-section') { refreshQuoteSelect(); refreshWorkorderList(); }
+            else if (sectionIdToShow === 'parts-sale-section') {
+                refreshPartsSalesHistoryList(); updateStockItemDatalist(); const pc = document.getElementById("parts-items-container");
+                if(pc && pc.children.length === 0) pc.appendChild(createPartItemInput()); recalcPartsTotal();
+            } else if (sectionIdToShow === 'stock-section') refreshStockList();
+            renderAllPromoCarousels(); // Ensure promo carousel updates if visible
+        } else console.warn(`Section or NavItem not found for: ${sectionIdToShow}`);
+    }
+
+    // --- DOMContentLoaded: Main entry point ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentYearEl = document.getElementById('current-year');
+        if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
+        loadPromoImages();
+        const promoAdminIcon = document.getElementById('promo-admin-icon');
+        if (promoAdminIcon) promoAdminIcon.onclick = togglePromoAdminMode;
+
+        const quoteForm = document.getElementById("quote-form");
+        const quoteCustomerInput = document.getElementById("quote-customer");
+        const quotePhoneInput = document.getElementById("quote-phone");
+        const quoteCarInfoInput = document.getElementById("quote-car-info");
+        const quoteItemsContainer = document.getElementById("quote-items-container");
+        const btnAddQuoteItem = document.getElementById("add-quote-item");
+        const quoteDiscountInput = document.getElementById("quote-discount");
+
+        const workorderForm = document.getElementById("workorder-form");
+        const selectQuoteForWorkorder = document.getElementById("select-quote-for-workorder");
+        const workorderNoteInput = document.getElementById("workorder-note");
+        const clearUsedQuotesBtn = document.getElementById("clear-used-quotes-btn");
+
+        const partsSaleForm = document.getElementById("parts-sale-form");
+        const partsCustomerInput = document.getElementById("parts-customer");
+        const partsItemsContainer = document.getElementById("parts-items-container");
+        const btnAddPartItem = document.getElementById("add-part-item");
+        const partsDiscountInput = document.getElementById("parts-discount");
+        const cashReceiptDiv = document.getElementById("cash-receipt");
+        const cashReceivedInputEl = document.getElementById("cash-received");
+        const cashChangeSpanEl = document.getElementById("cash-change");
+        const finalizePaymentBtn = document.getElementById("finalize-payment");
+
+        const stockForm = document.getElementById('stock-form');
+        const stockItemIdInput = document.getElementById('stock-item-id-input');
+        const stockItemSkuInput = document.getElementById('stock-item-sku-input');
+        const stockItemNameInput = document.getElementById('stock-item-name-input');
+        const stockItemCategoryInput = document.getElementById('stock-item-category-input');
+        const stockItemQuantityInput = document.getElementById('stock-item-quantity-input');
+        const stockItemCostPriceInput = document.getElementById('stock-item-cost-price-input');
+        const stockItemSellingPriceInput = document.getElementById('stock-item-selling-price-input');
+        const stockItemReorderPointInput = document.getElementById('stock-item-reorder-point-input');
+        const stockItemNotesInput = document.getElementById('stock-item-notes-input');
+        const stockSubmitBtn = document.getElementById('stock-submit-btn');
+        const stockCancelEditBtn = document.getElementById('stock-cancel-edit-btn');
+        const printStockTableBtn = document.getElementById('print-stock-table-btn');
+
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+            item.addEventListener('click', () => { const sectionId = item.getAttribute('data-section-id'); if (sectionId) switchAppSection(sectionId); });
+        });
+
+        if (btnAddQuoteItem) btnAddQuoteItem.addEventListener("click", () => { if (quoteItemsContainer) { const ni = createQuoteItemInput(); quoteItemsContainer.appendChild(ni); const fi = ni.querySelector('.item-name-input'); if (fi) fi.focus(); } recalcQuoteTotal(); });
+        if (quoteDiscountInput) quoteDiscountInput.addEventListener("input", recalcQuoteTotal);
+        if (quoteForm) quoteForm.addEventListener("submit", e => {
+            e.preventDefault(); const cust = quoteCustomerInput.value.trim(); const ph = quotePhoneInput.value.trim(); const car = quoteCarInfoInput.value.trim();
+            if (!cust || !car) { alert("กรุณากรอกชื่อลูกค้าและข้อมูลรถยนต์"); return; } const itms = [];
             if (quoteItemsContainer.children.length === 0) { alert("กรุณาเพิ่มอย่างน้อย 1 รายการ"); return; }
             for (let child of quoteItemsContainer.children) {
-                const nameIn = child.querySelector('.item-name-input');
-                const priceIn = child.querySelector('.item-price-input');
-                if (!nameIn || !priceIn) { console.error("Item input not found in quote."); continue; }
-                const nameVal = nameIn.value.trim(); const priceVal = parseFloat(priceIn.value) || 0;
-                if (!nameVal || priceVal <= 0) { alert("ชื่อและราคาของรายการต้องถูกต้อง (ราคา > 0)"); priceIn.focus(); return; }
-                items.push({ name: nameVal, price: priceVal });
+                const nin = child.querySelector('.item-name-input'); const pin = child.querySelector('.item-price-input'); if (!nin || !pin) continue;
+                const nval = nin.value.trim(); const pval = parseFloat(pin.value) || 0;
+                if (!nval || pval <= 0) { alert("ชื่อและราคาของรายการต้องถูกต้อง (ราคา > 0)"); pin.focus(); return; } itms.push({ name: nval, price: pval });
             }
-            const discount = parseFloat(quoteDiscountInput.value) || 0;
-            let calculatedSubtotal = 0; items.forEach(item => calculatedSubtotal += item.price);
-            const finalTotal = Math.max(0, calculatedSubtotal - discount);
-
-            const quoteId = generateId('Q');
-            quotes.push({ id: quoteId, customer, phone, carInfo, items, discount, total: finalTotal, createdAt: new Date().toISOString() });
-            saveData();
-            alert("บันทึกใบเสนอราคา: " + quoteId);
-            quoteForm.reset();
-            quoteItemsContainer.innerHTML = '';
-            quoteItemsContainer.appendChild(createQuoteItemInput());
-            recalcQuoteTotal();
-            if (quoteCustomerInput) quoteCustomerInput.focus();
+            const disc = parseFloat(quoteDiscountInput.value) || 0; let csub = 0; itms.forEach(i => csub += i.price); const ftot = Math.max(0, csub - disc);
+            const qid = generateId('Q'); quotes.push({ id: qid, customer:cust, phone:ph, carInfo:car, items:itms, discount:disc, total: ftot, createdAt: new Date().toISOString() });
+            saveData(); alert("บันทึกใบเสนอราคา: " + qid); quoteForm.reset(); quoteItemsContainer.innerHTML = ''; quoteItemsContainer.appendChild(createQuoteItemInput()); recalcQuoteTotal(); if (quoteCustomerInput) quoteCustomerInput.focus();
         });
-    }
 
-    if (workorderForm) {
-         workorderForm.addEventListener("submit", e => {
-            e.preventDefault();
-            const selectedQuoteId = selectQuoteForWorkorder.value;
-            if (!selectedQuoteId) { alert("กรุณาเลือกใบเสนอราคาที่เกี่ยวข้อง"); return; }
-            const quote = quotes.find(q => q.id === selectedQuoteId);
-            if (!quote) { alert("ไม่พบข้อมูลใบเสนอราคาที่เลือก"); return; }
-            const existingWorkorderForQuote = workorders.find(wo => wo.quote.id === selectedQuoteId);
-            if (existingWorkorderForQuote) {
-                if(!confirm(`ใบเสนอราคาเลขที่ ${selectedQuoteId} ถูกใช้ในใบรับรถเลขที่ ${existingWorkorderForQuote.id} แล้ว คุณต้องการสร้างใบรับรถซ้ำหรือไม่?`)){
-                    return;
+        if(clearUsedQuotesBtn) clearUsedQuotesBtn.addEventListener('click', () => {
+            if (confirm("คุณต้องการล้างรายการใบเสนอราคาที่ถูกใช้ไปแล้วและไม่อยู่ในสถานะ 'รับเข้าซ่อม' ออกจากรายการเลือกใช่หรือไม่? \n(ใบเสนอราคาจะไม่ถูกลบออกจากระบบ)")) {
+                const openWorkorderQuoteIds = new Set();
+                workorders.forEach(wo => { if(wo.quote && wo.quote.id) openWorkorderQuoteIds.add(wo.quote.id); });
+                // This action is primarily visual for the dropdown, actual quote data isn't changed here.
+                // The refreshQuoteSelect function already filters out used quotes. This button is more for a manual refresh if needed.
+                refreshQuoteSelect();
+                alert("รีเฟรชรายการใบเสนอราคาแล้ว");
+            }
+        });
+
+        if (workorderForm) workorderForm.addEventListener("submit", e => {
+            e.preventDefault(); const selQId = selectQuoteForWorkorder.value; if (!selQId) { alert("กรุณาเลือกใบเสนอราคาที่เกี่ยวข้อง"); return; }
+            const qte = quotes.find(q => q.id === selQId); if (!qte) { alert("ไม่พบข้อมูลใบเสนอราคาที่เลือก"); return; }
+            // const exWO = workorders.find(wo => wo.quote.id === selQId); // Check if quote is ALREADY used
+            // if (exWO) { if(!confirm(`ใบเสนอราคา ${selQId} ถูกใช้ในใบรับรถ ${exWO.id} แล้ว สร้างซ้ำหรือไม่?`)) return; }
+            const wid = generateId('W'); workorders.push({ id:wid, quote:qte, note: workorderNoteInput.value.trim(), status: 'รับเข้าซ่อม', receivedAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+            saveData(); alert(`บันทึกใบรับรถเข้าซ่อม เลขที่: ${wid}`); workorderForm.reset(); selectQuoteForWorkorder.value = ""; refreshQuoteSelect(); // Refresh to remove used quote
+        });
+        const zIWOB = document.getElementById('zoom-in-workorder-table'); const zOWOB = document.getElementById('zoom-out-workorder-table'); const wOTbl = document.getElementById('workorder-table');
+        if (zIWOB && zOWOB && wOTbl) { let cFSWO = parseFloat(window.getComputedStyle(wOTbl).fontSize) / parseFloat(window.getComputedStyle(wOTbl.parentElement).fontSize) || 0.9; const uZWO = () => wOTbl.style.fontSize = `${cFSWO}em`; zIWOB.onclick = () => { cFSWO = Math.min(1.5, cFSWO + 0.1); uZWO(); }; zOWOB.onclick = () => { cFSWO = Math.max(0.6, cFSWO - 0.1); uZWO(); }; }
+
+        if(btnAddPartItem) btnAddPartItem.addEventListener("click", () => { if (partsItemsContainer) { const ni = createPartItemInput(); partsItemsContainer.appendChild(ni); const fi = ni.querySelector('.item-name-input'); if (fi) fi.focus(); } recalcPartsTotal(); });
+        if(partsDiscountInput) partsDiscountInput.addEventListener("input", recalcPartsTotal);
+        if(partsSaleForm) partsSaleForm.addEventListener("submit", (e) => {
+            e.preventDefault(); const cust = partsCustomerInput.value.trim(); if (partsItemsContainer.children.length === 0) { alert("กรุณาเพิ่มอะไหล่อย่างน้อย 1 รายการ"); return; } const itms = [];
+            for (let child of partsItemsContainer.children) {
+                const nin = child.querySelector('.item-name-input'); const qin = child.querySelector('.item-qty-input'); const pin = child.querySelector('.item-price-input'); if (!nin || !qin || !pin) continue;
+                const n = nin.value.trim(); const q = parseInt(qin.value); const p = parseFloat(pin.value); if (!n || isNaN(q) || q <= 0 || isNaN(p) || p < 0) { alert("ข้อมูลอะไหล่ไม่ถูกต้อง"); return; } itms.push({ name:n, qty:q, price:p });
+            }
+            const disc = parseFloat(partsDiscountInput.value) || 0; let csub = 0; itms.forEach(i => csub += (i.qty * i.price)); const ftot = Math.max(0, csub - disc);
+            const sid = generateId('S'); cashReceiptDiv.dataset.pendingSaleData = JSON.stringify({ id: sid, customer:cust, items:itms, discount:disc, total: ftot, createdAt: new Date().toISOString() });
+            cashReceivedInputEl.value = ftot > 0 ? ftot.toFixed(2) : "0.00"; cashChangeSpanEl.textContent = "0.00"; cashReceiptDiv.style.display = "block"; cashReceivedInputEl.focus(); cashReceivedInputEl.select();
+        });
+        if(cashReceivedInputEl) cashReceivedInputEl.addEventListener("input", () => {
+            const cashIn = parseFloat(cashReceivedInputEl.value) || 0; const sDStr = cashReceiptDiv.dataset.pendingSaleData;
+            if (sDStr) { const sD = JSON.parse(sDStr); const chg = cashIn - sD.total; cashChangeSpanEl.textContent = chg >= 0 ? chg.toFixed(2) : "0.00"; }
+        });
+        if(finalizePaymentBtn) finalizePaymentBtn.addEventListener("click", () => {
+            if(!cashReceivedInputEl || !cashReceiptDiv || !cashChangeSpanEl || !partsSaleForm || !partsItemsContainer) return;
+            const cashIn = parseFloat(cashReceivedInputEl.value); if (isNaN(cashIn)) { alert("กรุณากรอกจำนวนเงินที่รับให้ถูกต้อง"); cashReceivedInputEl.focus(); return; }
+            const sDStr = cashReceiptDiv.dataset.pendingSaleData; if (!sDStr) { alert("ไม่พบข้อมูลการขาย"); cashReceiptDiv.style.display = "none"; return; } const sD = JSON.parse(sDStr);
+            if (cashIn < sD.total) { alert("จำนวนเงินที่รับไม่เพียงพอ"); cashReceivedInputEl.focus(); return; }
+            let stockIssues = [];
+            sD.items.forEach(soldItem => {
+                const stockItemIndex = stockItems.findIndex(si => si.name.toLowerCase() === soldItem.name.toLowerCase());
+                if (stockItemIndex > -1) {
+                    const currentStockQty = Number(stockItems[stockItemIndex].quantity);
+                    if (isNaN(currentStockQty)) { stockIssues.push(`สินค้า "${soldItem.name}" มีปัญหาจำนวนในสต็อก`); return; }
+                    if (currentStockQty >= soldItem.qty) stockItems[stockItemIndex].quantity -= soldItem.qty;
+                    else { stockIssues.push(`"${soldItem.name}" มี ${currentStockQty} (ขาย ${soldItem.qty}). สต็อกถูกปรับตามจำนวนที่มี.`); stockItems[stockItemIndex].quantity = 0; }
+                    stockItems[stockItemIndex].lastUpdated = new Date().toISOString();
                 }
-            }
-            const id = generateId('W');
-            workorders.push({ id, quote, note: workorderNoteInput.value.trim(), status: 'รับเข้าซ่อม', receivedAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-            saveData();
-            alert(`บันทึกใบรับรถเข้าซ่อม เลขที่: ${id}`);
-            workorderForm.reset();
-            selectQuoteForWorkorder.value = "";
+            });
+            if (stockIssues.length > 0) alert("ปัญหาการตัดสต็อก (ดำเนินการขายต่อตามจำนวนที่มี):\n" + stockIssues.join("\n"));
+            sD.payment = { cashReceived: cashIn, changeGiven: parseFloat(cashChangeSpanEl.textContent) }; partsSaleItems.push(sD);
+            saveData(); alert(`บันทึกการขาย ${sD.id} เรียบร้อย`); cashReceiptDiv.style.display = "none"; partsSaleForm.reset();
+            partsItemsContainer.innerHTML = ''; partsItemsContainer.appendChild(createPartItemInput()); recalcPartsTotal();
         });
-    }
-    const zoomInWOBtn = document.getElementById('zoom-in-workorder-table');
-    const zoomOutWOBtn = document.getElementById('zoom-out-workorder-table');
-    const workorderTable = document.getElementById('workorder-table');
-    if (zoomInWOBtn && zoomOutWOBtn && workorderTable) {
-      let currentFontSizeWO = parseFloat(window.getComputedStyle(workorderTable).fontSize) / parseFloat(window.getComputedStyle(workorderTable.parentElement).fontSize) || 0.9;
-      const updateZoomWO = () => workorderTable.style.fontSize = `${currentFontSizeWO}em`;
-      zoomInWOBtn.onclick = () => { currentFontSizeWO = Math.min(1.5, currentFontSizeWO + 0.1); updateZoomWO(); };
-      zoomOutWOBtn.onclick = () => { currentFontSizeWO = Math.max(0.6, currentFontSizeWO - 0.1); updateZoomWO(); };
-    }
+        const zISBtn = document.getElementById('zoom-in-sales-history-table'); const zOSBtn = document.getElementById('zoom-out-sales-history-table'); const sHTbl = document.getElementById('sales-history-table');
+        if (zISBtn && zOSBtn && sHTbl) { let cFSS = parseFloat(window.getComputedStyle(sHTbl).fontSize) / parseFloat(window.getComputedStyle(sHTbl.parentElement).fontSize) || 0.9; const uZSS = () => sHTbl.style.fontSize = `${cFSS}em`; zISBtn.onclick = () => { cFSS = Math.min(1.5, cFSS + 0.1); uZSS(); }; zOSBtn.onclick = () => { cFSS = Math.max(0.6, cFSS - 0.1); uZSS(); }; }
 
-    if(btnAddPartItem) btnAddPartItem.addEventListener("click", () => {
-        if (partsItemsContainer) {
-            const newItem = createPartItemInput();
-            partsItemsContainer.appendChild(newItem);
-            const firstInput = newItem.querySelector('.item-name-input');
-            if (firstInput) firstInput.focus();
-        }
-        recalcPartsTotal();
-    });
-    if(partsDiscountInput) partsDiscountInput.addEventListener("input", recalcPartsTotal);
-    if(partsSaleForm) partsSaleForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const customer = partsCustomerInput.value.trim();
-        if (partsItemsContainer.children.length === 0) { alert("กรุณาเพิ่มอะไหล่อย่างน้อย 1 รายการ"); return; }
-        const items = [];
-        for (let child of partsItemsContainer.children) {
-            const nameIn = child.querySelector('.item-name-input');
-            const qtyIn = child.querySelector('.item-qty-input');
-            const priceIn = child.querySelector('.item-price-input');
-            if (!nameIn || !qtyIn || !priceIn) { console.error("Part item input missing for sale."); continue; }
-            const name = nameIn.value.trim(); const qty = parseInt(qtyIn.value); const price = parseFloat(priceIn.value);
-            if (!name || isNaN(qty) || qty <= 0 || isNaN(price) || price < 0) { alert("ข้อมูลอะไหล่ไม่ถูกต้อง"); return; }
-            items.push({ name, qty, price });
-        }
-        const discount = parseFloat(partsDiscountInput.value) || 0;
-        let calculatedSubtotal = 0; items.forEach(item => calculatedSubtotal += (item.qty * item.price));
-        const finalTotal = Math.max(0, calculatedSubtotal - discount);
-        document.getElementById("parts-total").textContent = finalTotal.toFixed(2);
-
-        const saleId = generateId('S');
-        cashReceiptDiv.dataset.pendingSaleData = JSON.stringify({ id: saleId, customer, items, discount, total: finalTotal, createdAt: new Date().toISOString() });
-        cashReceivedInputEl.value = finalTotal > 0 ? finalTotal.toFixed(2) : "0.00"; // Ensure it shows a value
-        cashChangeSpanEl.textContent = "0.00";
-        cashReceiptDiv.style.display = "block";
-        cashReceivedInputEl.focus(); cashReceivedInputEl.select();
-    });
-    if(cashReceivedInputEl) cashReceivedInputEl.addEventListener("input", () => {
-        const cashIn = parseFloat(cashReceivedInputEl.value) || 0;
-        const saleDataString = cashReceiptDiv.dataset.pendingSaleData;
-        if (saleDataString) {
-            const saleData = JSON.parse(saleDataString);
-            const change = cashIn - saleData.total;
-            cashChangeSpanEl.textContent = change >= 0 ? change.toFixed(2) : "0.00";
-        }
-    });
-    if(finalizePaymentBtn) finalizePaymentBtn.addEventListener("click", () => {
-        if(!cashReceivedInputEl || !cashReceiptDiv || !cashChangeSpanEl || !partsSaleForm || !partsItemsContainer) return;
-        const cashIn = parseFloat(cashReceivedInputEl.value);
-        if (isNaN(cashIn)) { alert("กรุณากรอกจำนวนเงินที่รับให้ถูกต้อง"); cashReceivedInputEl.focus(); return; }
-
-        const saleDataString = cashReceiptDiv.dataset.pendingSaleData;
-        if (!saleDataString) { alert("ไม่พบข้อมูลการขาย"); cashReceiptDiv.style.display = "none"; return; }
-        const saleData = JSON.parse(saleDataString);
-
-        if (cashIn < saleData.total) { alert("จำนวนเงินที่รับไม่เพียงพอ"); cashReceivedInputEl.focus(); return; }
-
-        let stockIssues = [];
-        saleData.items.forEach(soldItem => {
-            const stockItemIndex = stockItems.findIndex(si => si.name.toLowerCase() === soldItem.name.toLowerCase());
-            if (stockItemIndex > -1) {
-                const currentStockQty = Number(stockItems[stockItemIndex].quantity);
-                if (isNaN(currentStockQty)) { stockIssues.push(`สินค้า "${soldItem.name}" มีปัญหาจำนวนในสต็อก`); return; }
-                if (currentStockQty >= soldItem.qty) {
-                    stockItems[stockItemIndex].quantity -= soldItem.qty;
-                } else {
-                    stockIssues.push(`"${soldItem.name}" มี ${currentStockQty} (ขาย ${soldItem.qty}). สต็อกถูกปรับตามจำนวนที่มี.`);
-                    stockItems[stockItemIndex].quantity = 0;
-                }
-                stockItems[stockItemIndex].lastUpdated = new Date().toISOString();
-            }
+        if(stockCancelEditBtn) stockCancelEditBtn.addEventListener('click', () => { stockForm.reset(); stockItemIdInput.value = ""; stockSubmitBtn.textContent = "เพิ่มสินค้าเข้าสต็อก"; stockCancelEditBtn.style.display = "none"; });
+        if(stockForm) stockForm.addEventListener('submit', (e) => {
+            e.preventDefault(); const id = stockItemIdInput.value; const sku = stockItemSkuInput.value.trim(); const name = stockItemNameInput.value.trim(); const cat = stockItemCategoryInput.value.trim();
+            const qty = parseInt(stockItemQuantityInput.value); const costP = parseFloat(stockItemCostPriceInput.value) || 0; const sellP = parseFloat(stockItemSellingPriceInput.value);
+            const reorderP = parseInt(stockItemReorderPointInput.value) || 0; const notes = stockItemNotesInput.value.trim();
+            if (!name || isNaN(qty) || qty < 0 || isNaN(sellP) || sellP < 0) { alert("ข้อมูลจำเป็นไม่ถูกต้อง: ชื่อสินค้า, จำนวน (ไม่ติดลบ), และราคาขาย (ไม่ติดลบ)"); return; }
+            if (isNaN(costP) || costP < 0) { alert("ราคาต้นทุนต้องเป็นตัวเลขที่ไม่ติดลบ (หากไม่มีใส่ 0)"); return; }
+            if (isNaN(reorderP) || reorderP < 0) { alert("จุดสั่งซื้อต้องเป็นตัวเลขที่ไม่ติดลบ (หากไม่มีใส่ 0)"); return; }
+            const exIName = stockItems.find(i => i.name.toLowerCase() === name.toLowerCase() && i.id !== id); if (exIName) { alert(`ชื่อสินค้า "${name}" นี้มีอยู่แล้ว`); stockItemNameInput.focus(); return; }
+            if (sku) { const exISKU = stockItems.find(i => i.sku && i.sku.toLowerCase() === sku.toLowerCase() && i.id !== id); if (exISKU) { alert(`รหัส SKU "${sku}" นี้มีอยู่แล้ว`); stockItemSkuInput.focus(); return; } }
+            if (id) {
+                const idx = stockItems.findIndex(i => i.id === id);
+                if (idx > -1) { stockItems[idx] = { ...stockItems[idx], sku, name, category:cat, quantity:qty, costPrice:costP, sellingPrice:sellP, reorderPoint:reorderP, notes, lastUpdated: new Date().toISOString() }; alert("แก้ไขข้อมูลสินค้าเรียบร้อย"); }
+            } else { const nid = 'STK' + Date.now(); stockItems.push({ id: nid, sku, name, category:cat, quantity:qty, costPrice:costP, sellingPrice:sellP, reorderPoint:reorderP, notes, createdAt: new Date().toISOString(), lastUpdated: new Date().toISOString() }); alert("เพิ่มสินค้าเข้าสต็อกเรียบร้อย"); }
+            saveData(); stockForm.reset(); stockItemIdInput.value = ""; stockSubmitBtn.textContent = "เพิ่มสินค้าเข้าสต็อก"; stockCancelEditBtn.style.display = "none";
         });
-        if (stockIssues.length > 0) alert("ปัญหาการตัดสต็อก (ดำเนินการขายต่อตามจำนวนที่มี):\n" + stockIssues.join("\n"));
+        if(printStockTableBtn) printStockTableBtn.addEventListener('click', printStockTable);
 
-        saleData.payment = { cashReceived: cashIn, changeGiven: parseFloat(cashChangeSpanEl.textContent) };
-        partsSaleItems.push(saleData);
-        saveData();
-        alert(`บันทึกการขาย ${saleData.id} เรียบร้อย`);
-        cashReceiptDiv.style.display = "none";
-        partsSaleForm.reset();
-        partsItemsContainer.innerHTML = ''; partsItemsContainer.appendChild(createPartItemInput());
-        recalcPartsTotal();
-    });
-    const zoomInSalesBtn = document.getElementById('zoom-in-sales-history-table');
-    const zoomOutSalesBtn = document.getElementById('zoom-out-sales-history-table');
-    const salesHistoryTable = document.getElementById('sales-history-table');
-    if (zoomInSalesBtn && zoomOutSalesBtn && salesHistoryTable) {
-      let currentFontSizeSales = parseFloat(window.getComputedStyle(salesHistoryTable).fontSize) / parseFloat(window.getComputedStyle(salesHistoryTable.parentElement).fontSize) || 0.9;
-      const updateZoomSales = () => salesHistoryTable.style.fontSize = `${currentFontSizeSales}em`;
-      zoomInSalesBtn.onclick = () => { currentFontSizeSales = Math.min(1.5, currentFontSizeSales + 0.1); updateZoomSales(); };
-      zoomOutSalesBtn.onclick = () => { currentFontSizeSales = Math.max(0.6, currentFontSizeSales - 0.1); updateZoomSales(); };
-    }
-
-    if(stockCancelEditBtn) stockCancelEditBtn.addEventListener('click', () => {
-        stockForm.reset();
-        stockItemIdInput.value = "";
-        stockSubmitBtn.textContent = "เพิ่มสินค้าเข้าสต็อก";
-        stockCancelEditBtn.style.display = "none";
-    });
-    if(stockForm) stockForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = stockItemIdInput.value;
-        const sku = stockItemSkuInput.value.trim();
-        const name = stockItemNameInput.value.trim();
-        const category = stockItemCategoryInput.value.trim();
-        const quantity = parseInt(stockItemQuantityInput.value);
-        const costPrice = parseFloat(stockItemCostPriceInput.value) || 0;
-        const sellingPrice = parseFloat(stockItemSellingPriceInput.value);
-        const reorderPoint = parseInt(stockItemReorderPointInput.value) || 0;
-        const notes = stockItemNotesInput.value.trim();
-
-        if (!name || isNaN(quantity) || quantity < 0 || isNaN(sellingPrice) || sellingPrice < 0) {
-            alert("ข้อมูลจำเป็นไม่ถูกต้อง: ชื่อสินค้า, จำนวน (ไม่ติดลบ), และราคาขาย (ไม่ติดลบ)");
-            return;
-        }
-        if (isNaN(costPrice) || costPrice < 0) {
-             alert("ราคาต้นทุนต้องเป็นตัวเลขที่ไม่ติดลบ (หากไม่มีใส่ 0)"); // Clarified message
-            return;
-        }
-        if (isNaN(reorderPoint) || reorderPoint < 0) {
-            alert("จุดสั่งซื้อต้องเป็นตัวเลขที่ไม่ติดลบ (หากไม่มีใส่ 0)"); // Clarified message
-            return;
-        }
-
-        const existingItemByName = stockItems.find(item => item.name.toLowerCase() === name.toLowerCase() && item.id !== id);
-        if (existingItemByName) {
-            alert(`ชื่อสินค้า "${name}" นี้มีอยู่แล้วในระบบ กรุณาใช้ชื่ออื่นหรือแก้ไขรายการที่มีอยู่`);
-            stockItemNameInput.focus();
-            return;
-        }
-        if (sku) {
-            const existingItemBySKU = stockItems.find(item => item.sku && item.sku.toLowerCase() === sku.toLowerCase() && item.id !== id);
-            if (existingItemBySKU) {
-                alert(`รหัส SKU "${sku}" นี้มีอยู่แล้วในระบบ กรุณาใช้รหัสอื่นหรือแก้ไขรายการที่มีอยู่`);
-                stockItemSkuInput.focus();
-                return;
-            }
-        }
-
-        if (id) {
-            const index = stockItems.findIndex(item => item.id === id);
-            if (index > -1) {
-                stockItems[index] = { ...stockItems[index], sku, name, category, quantity, costPrice, sellingPrice, reorderPoint, notes, lastUpdated: new Date().toISOString() };
-                alert("แก้ไขข้อมูลสินค้าเรียบร้อย");
-            }
-        } else {
-            const newItemId = 'STK' + Date.now();
-            stockItems.push({ id: newItemId, sku, name, category, quantity, costPrice, sellingPrice, reorderPoint, notes, createdAt: new Date().toISOString(), lastUpdated: new Date().toISOString() });
-            alert("เพิ่มสินค้าเข้าสต็อกเรียบร้อย");
-        }
-        saveData();
-        stockForm.reset();
-        stockItemIdInput.value = "";
-        stockSubmitBtn.textContent = "เพิ่มสินค้าเข้าสต็อก";
-        stockCancelEditBtn.style.display = "none";
-    });
-
-    if(printStockTableBtn) {
-        printStockTableBtn.addEventListener('click', printStockTable);
-    }
-
-    loadData();
-    switchAppSection('dashboard-section');
-
-}); // END OF DOMContentLoaded
+        loadData();
+        setInterval(() => {
+            updateDashboardStats();
+        }, 5000);
+        switchAppSection('dashboard-section'); // Initialize with dashboard
+    }); // END OF DOMContentLoaded
     </script>
 </body>
 </html>
